@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFP Email Timeline — Oct 2025 to Mar 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Menlo', monospace; background: #0d1117; color: #e0e0e0; padding: 30px 30px 60px; overflow-x: hidden; }
+  h1 { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+  .subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+
+  /* Timeline bar */
+  .timeline-container { margin-bottom: 24px; }
+  .timeline-bar { width: 100%; height: 6px; background: #161b22; border-radius: 3px; position: relative; cursor: pointer; }
+  .timeline-fill { height: 100%; background: linear-gradient(90deg, #1a5276, #e94560); border-radius: 3px; transition: width 0.3s ease; }
+  .timeline-labels { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin-top: 4px; }
+  .timeline-current { font-size: 14px; font-weight: 600; color: #e94560; margin-bottom: 8px; }
+
+  /* Controls */
+  .controls { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+  .btn { background: #161b22; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; }
+  .btn:hover { background: #21262d; border-color: #8b949e; }
+  .btn.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
+  .speed-label { font-size: 11px; color: #555; }
+
+  /* Stats row */
+  .stats { display: flex; gap: 20px; margin-bottom: 20px; }
+  .stat { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 10px 16px; min-width: 100px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: #e94560; transition: all 0.3s; }
+  .stat-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* Main visualization */
+  .viz { display: flex; gap: 30px; }
+  .bars-container { flex: 1; display: flex; flex-direction: column; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 3px; height: 26px; transition: all 0.4s ease; opacity: 0; }
+  .bar-row.visible { opacity: 1; }
+  .bar-name { width: 160px; flex-shrink: 0; font-size: 12px; color: #8b949e; text-align: right; padding-right: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.3s; }
+  .bar-name.hot { color: #fff; font-weight: 600; }
+  .bar-track { flex: 1; height: 20px; position: relative; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease, background 0.5s ease; position: relative; min-width: 0; }
+  .bar-count { position: absolute; right: -32px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 600; color: #e94560; min-width: 28px; transition: all 0.3s; }
+  .bar-pulse { position: absolute; right: 0; top: 0; width: 4px; height: 100%; background: #fff; border-radius: 0 3px 3px 0; opacity: 0; transition: opacity 0.2s; }
+  .bar-row.just-added .bar-pulse { opacity: 0.8; }
+
+  /* Week column on the right */
+  .week-panel { width: 200px; flex-shrink: 0; }
+  .week-panel h3 { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .week-item { font-size: 12px; padding: 3px 0; color: #8b949e; display: flex; justify-content: space-between; opacity: 0; transition: opacity 0.3s; }
+  .week-item.visible { opacity: 1; }
+  .week-item .wi-count { color: #e94560; font-weight: 600; }
+
+  /* Heatmap mini */
+  .mini-heat { margin-top: 30px; }
+  .mini-heat h3 { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .mini-row { display: flex; align-items: center; margin-bottom: 2px; }
+  .mini-name { width: 130px; font-size: 10px; color: #555; text-align: right; padding-right: 8px; white-space: nowrap; overflow: hidden; }
+  .mini-cells { display: flex; gap: 1px; }
+  .mini-cell { width: 14px; height: 14px; border-radius: 2px; background: #0d1117; transition: background 0.4s ease, transform 0.2s; }
+  .mini-cell.pop { transform: scale(1.3); }
+
+  /* Avg per day bar */
+  .avg-container { margin-bottom: 20px; }
+  .avg-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .avg-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+  .avg-value { font-size: 18px; font-weight: 700; color: #58a6ff; }
+  .avg-bar-track { width: 100%; height: 20px; background: #161b22; border-radius: 4px; overflow: hidden; position: relative; }
+  .avg-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease, background 0.5s ease; background: linear-gradient(90deg, #1a5276, #58a6ff); }
+  .avg-bar-markers { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  .avg-marker { position: absolute; top: 0; height: 100%; width: 1px; background: rgba(255,255,255,0.15); }
+  .avg-marker-label { position: absolute; top: -14px; transform: translateX(-50%); font-size: 9px; color: #444; }
+  .avg-scale { display: flex; justify-content: space-between; font-size: 9px; color: #333; margin-top: 2px; }
+
+  .source-note { font-size: 10px; color: #333; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<h1>NFP Email Timeline</h1>
+<p class="subtitle">Watch the integration unfold — inbound emails from *@nfp.com, Oct 2025 → Mar 2026</p>
+
+<div class="controls">
+  <button class="btn active" id="btnPlay">&#9654; Play</button>
+  <button class="btn" id="btnPause">&#10074;&#10074; Pause</button>
+  <button class="btn" id="btnReset">&#8634; Reset</button>
+  <span class="speed-label">Speed:</span>
+  <button class="btn speed" data-ms="1200">Slow</button>
+  <button class="btn speed active" data-ms="700">Normal</button>
+  <button class="btn speed" data-ms="300">Fast</button>
+</div>
+
+<div class="timeline-current" id="currentWeek">—</div>
+<div class="timeline-container">
+  <div class="timeline-bar" id="timelineBar">
+    <div class="timeline-fill" id="timelineFill"></div>
+  </div>
+  <div class="timeline-labels"><span>Oct 2025</span><span>Nov</span><span>Dec</span><span>Jan 2026</span><span>Feb</span><span>Mar</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Emails</div></div>
+  <div class="stat"><div class="stat-value" id="statSenders">0</div><div class="stat-label">Active Senders</div></div>
+  <div class="stat"><div class="stat-value" id="statWeek">0</div><div class="stat-label">This Week</div></div>
+  <div class="stat"><div class="stat-value" id="statPeak">0</div><div class="stat-label">Peak Week</div></div>
+</div>
+
+<div class="avg-container">
+  <div class="avg-header">
+    <span class="avg-label">Avg Emails / Day</span>
+    <span class="avg-value" id="avgValue">0.0</span>
+  </div>
+  <div class="avg-bar-track">
+    <div class="avg-bar-fill" id="avgFill"></div>
+    <div class="avg-bar-markers">
+      <div class="avg-marker" style="left:20%"><span class="avg-marker-label">2</span></div>
+      <div class="avg-marker" style="left:40%"><span class="avg-marker-label">4</span></div>
+      <div class="avg-marker" style="left:60%"><span class="avg-marker-label">6</span></div>
+      <div class="avg-marker" style="left:80%"><span class="avg-marker-label">8</span></div>
+    </div>
+  </div>
+  <div class="avg-scale"><span>0</span><span>10+ emails/day</span></div>
+</div>
+
+<div class="viz">
+  <div class="bars-container" id="barsContainer"></div>
+  <div class="week-panel">
+    <h3>This Week's Activity</h3>
+    <div id="weekActivity"></div>
+  </div>
+</div>
+
+<div class="mini-heat" id="miniHeat">
+  <h3>Cumulative Heat Map</h3>
+</div>
+
+<p class="source-note">Inbound email from *@nfp.com, Oct 2025 – Mar 2026. Week of Mar 30 partial (Monday only).</p>
+
+<script>
+// === MERGED DATA ===
+const data = {
+  "R. Mediate": {"2025-09-29":1,"2025-10-06":2,"2025-10-13":2,"2025-10-20":4,"2025-11-03":1,"2025-11-10":1,"2025-12-08":1,"2025-12-15":3,"2025-12-29":5,"2026-01-05":5,"2026-01-12":10,"2026-01-19":1,"2026-01-26":2,"2026-02-02":2,"2026-02-09":6,"2026-02-16":7,"2026-03-02":1},
+  "M. Mullen": {"2025-12-08":5,"2025-12-15":1,"2026-01-05":1,"2026-01-12":5,"2026-01-19":4,"2026-01-26":2,"2026-02-02":6,"2026-02-09":8,"2026-02-16":14,"2026-02-23":12,"2026-03-02":11,"2026-03-09":24,"2026-03-16":12,"2026-03-23":17},
+  "J. Lovall": {"2026-01-19":2,"2026-02-09":6,"2026-02-16":6,"2026-02-23":10,"2026-03-02":11,"2026-03-09":5,"2026-03-23":11,"2026-03-30":3},
+  "R. Burroughs": {"2026-02-23":2,"2026-03-02":5,"2026-03-09":7,"2026-03-16":3},
+  "W. Wolff": {"2025-11-03":1,"2025-11-17":2,"2025-12-08":2,"2026-01-05":4,"2026-01-12":1,"2026-01-19":2,"2026-01-26":2,"2026-02-16":1},
+  "S. Goldman": {"2025-12-08":2,"2025-12-15":4,"2026-01-05":1,"2026-01-12":1,"2026-01-19":1,"2026-02-09":1,"2026-02-16":3,"2026-02-23":2,"2026-03-02":1,"2026-03-09":3},
+  "S. Clifford": {"2026-02-23":1,"2026-03-02":3,"2026-03-09":2,"2026-03-16":2,"2026-03-23":6},
+  "B. Millican": {"2026-02-23":2,"2026-03-02":2,"2026-03-09":1,"2026-03-16":4,"2026-03-23":4},
+  "K. Pillar": {"2026-02-02":6,"2026-02-09":5,"2026-02-23":1},
+  "J. Searles": {"2026-02-02":5,"2026-02-16":7,"2026-03-09":2,"2026-03-16":2},
+  "B. Woodward": {"2025-10-20":1,"2026-01-12":2,"2026-02-09":3,"2026-02-16":3,"2026-03-02":2,"2026-03-16":1,"2026-03-23":1},
+  "T. Wharton": {"2026-03-02":4,"2026-03-09":1,"2026-03-16":1,"2026-03-23":4,"2026-03-30":1},
+  "T. McClain": {"2025-12-22":1,"2026-02-09":1,"2026-02-16":1,"2026-03-02":1,"2026-03-09":6},
+  "D. Maloney": {"2025-11-10":1,"2025-11-17":1,"2025-12-01":1,"2025-12-22":5},
+  "J. Solomon": {"2026-02-23":1,"2026-03-02":2,"2026-03-09":2,"2026-03-16":1,"2026-03-23":2},
+  "B. Jackson": {"2026-02-02":2,"2026-02-16":2,"2026-02-23":3,"2026-03-02":3},
+  "K. Connelly": {"2026-02-02":3,"2026-02-16":3,"2026-02-23":1,"2026-03-02":3,"2026-03-16":1,"2026-03-30":1},
+  "C. Kendrick": {"2026-02-23":2,"2026-03-02":2,"2026-03-16":1,"2026-03-23":1},
+  "C. Stutz": {"2025-12-22":1,"2025-12-29":4,"2026-02-16":1},
+  "A. Ciasulli": {"2026-02-02":3,"2026-02-09":3,"2026-03-16":1},
+  "M. Bamford": {"2026-03-02":2,"2026-03-09":2,"2026-03-30":1},
+  "S. Moriyama": {"2026-02-23":1,"2026-03-02":2,"2026-03-09":2},
+  "S. Brown": {"2026-03-09":2,"2026-03-23":3},
+  "M. Altamirano": {"2026-02-02":2,"2026-02-16":2},
+  "D. Warner": {"2026-02-23":1,"2026-03-02":2,"2026-03-16":1},
+  "J. Harlow": {"2026-02-23":1,"2026-03-09":1,"2026-03-16":2},
+  "E. Kalenik": {"2026-02-09":2,"2026-02-16":2},
+  "N. Cronin": {"2026-03-02":3,"2026-03-16":1},
+  "B. Kissinger": {"2026-03-09":1,"2026-03-16":3},
+  "M. Thammavong": {"2026-03-16":4},
+  "L. Christianson": {"2026-02-23":1,"2026-03-02":1,"2026-03-16":2},
+  "L. Lamb": {"2026-03-16":4},
+  "A. Swider": {"2026-03-09":2,"2026-03-16":2},
+  "J. Seckner": {"2026-03-23":3,"2026-03-30":1},
+  "C. Sam": {"2026-01-26":1,"2026-02-16":2,"2026-02-23":2},
+  "NFP Employee Benefits": {"2026-03-02":2,"2026-03-09":1,"2026-03-16":1}
+};
+
+// All weeks sorted
+const allWeeks = [...new Set(Object.values(data).flatMap(w => Object.keys(w)))].sort();
+const allSenders = Object.keys(data);
+
+// State
+let currentWeekIdx = -1;
+let running = {};  // sender -> running total
+let weekTotals = [];  // total per week
+let peakWeek = 0;
+let interval = null;
+let speed = 700;
+
+// Color for bars
+function barColor(total) {
+  if (total <= 3) return '#1a5276';
+  if (total <= 8) return '#1f6feb';
+  if (total <= 15) return '#d97706';
+  if (total <= 30) return '#e94560';
+  return '#ff2050';
+}
+
+function heatColor(count) {
+  if (count === 0) return '#0d1117';
+  if (count === 1) return '#0e4429';
+  if (count === 2) return '#006d32';
+  if (count <= 4) return '#26a641';
+  if (count <= 7) return '#d97706';
+  if (count <= 10) return '#e94560';
+  if (count <= 15) return '#da3633';
+  return '#ff2050';
+}
+
+function weekLabel(w) {
+  const d = new Date(w + 'T12:00:00');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function shortWeek(w) {
+  const d = new Date(w + 'T12:00:00');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}`;
+}
+
+// Build mini heatmap skeleton
+function buildMiniHeat() {
+  const container = document.getElementById('miniHeat');
+  // Top 15 senders by final total
+  const finals = {};
+  for (const [name, weeks] of Object.entries(data)) {
+    finals[name] = Object.values(weeks).reduce((a,b) => a+b, 0);
+  }
+  const top = Object.entries(finals).sort((a,b) => b[1]-a[1]).slice(0, 15);
+
+  let html = '<h3>Cumulative Heat Map</h3>';
+  for (const [name] of top) {
+    html += `<div class="mini-row" data-sender="${name}">`;
+    html += `<div class="mini-name">${name}</div><div class="mini-cells">`;
+    for (const w of allWeeks) {
+      html += `<div class="mini-cell" data-week="${w}" data-sender="${name}"></div>`;
+    }
+    html += '</div></div>';
+  }
+  container.innerHTML = html;
+}
+
+// Build bar rows skeleton
+function buildBars() {
+  const container = document.getElementById('barsContainer');
+  let html = '';
+  for (const name of allSenders) {
+    html += `<div class="bar-row" id="bar-${CSS.escape(name)}" data-sender="${name}">
+      <div class="bar-name">${name}</div>
+      <div class="bar-track"><div class="bar-fill"><div class="bar-pulse"></div><span class="bar-count">0</span></div></div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function getMaxTotal() {
+  return Math.max(1, ...Object.values(running));
+}
+
+function advanceWeek() {
+  currentWeekIdx++;
+  if (currentWeekIdx >= allWeeks.length) {
+    pause();
+    return;
+  }
+
+  const week = allWeeks[currentWeekIdx];
+  let weekTotal = 0;
+  const weekSenders = [];
+
+  // Update running totals
+  for (const [name, weeks] of Object.entries(data)) {
+    const count = weeks[week] || 0;
+    if (count > 0) {
+      running[name] = (running[name] || 0) + count;
+      weekTotal += count;
+      weekSenders.push({ name, count, total: running[name] });
+    }
+  }
+
+  weekTotals.push(weekTotal);
+  peakWeek = Math.max(peakWeek, weekTotal);
+
+  const grandTotal = Object.values(running).reduce((a,b) => a+b, 0);
+  const activeSenders = Object.values(running).filter(v => v > 0).length;
+  const maxTotal = getMaxTotal();
+
+  // Calculate avg emails per day
+  const firstWeek = new Date(allWeeks[0] + 'T12:00:00');
+  const thisWeek = new Date(week + 'T12:00:00');
+  const daysSoFar = Math.max(1, Math.round((thisWeek - firstWeek) / 86400000) + 7);
+  const avgPerDay = grandTotal / daysSoFar;
+  const avgCapped = Math.min(avgPerDay, 10);
+  const avgPct = (avgCapped / 10) * 100;
+
+  // Color the bar based on intensity
+  let avgColor;
+  if (avgPerDay < 1) avgColor = 'linear-gradient(90deg, #1a5276, #1a5276)';
+  else if (avgPerDay < 3) avgColor = 'linear-gradient(90deg, #1a5276, #58a6ff)';
+  else if (avgPerDay < 5) avgColor = 'linear-gradient(90deg, #1a5276, #58a6ff, #d97706)';
+  else avgColor = 'linear-gradient(90deg, #1a5276, #58a6ff, #d97706, #e94560)';
+
+  document.getElementById('avgValue').textContent = avgPerDay.toFixed(1);
+  document.getElementById('avgFill').style.width = avgPct + '%';
+  document.getElementById('avgFill').style.background = avgColor;
+
+  // Update stats
+  document.getElementById('statTotal').textContent = grandTotal;
+  document.getElementById('statSenders').textContent = activeSenders;
+  document.getElementById('statWeek').textContent = weekTotal;
+  document.getElementById('statPeak').textContent = peakWeek;
+
+  // Update timeline
+  document.getElementById('currentWeek').textContent = `Week of ${weekLabel(week)}`;
+  const pct = ((currentWeekIdx + 1) / allWeeks.length) * 100;
+  document.getElementById('timelineFill').style.width = pct + '%';
+
+  // Sort senders by running total
+  const sorted = Object.entries(running).sort((a,b) => b[1] - a[1]);
+
+  // Update bars
+  const container = document.getElementById('barsContainer');
+  for (let i = 0; i < sorted.length; i++) {
+    const [name, total] = sorted[i];
+    const el = document.querySelector(`.bar-row[data-sender="${CSS.escape(name)}"]`);
+    if (!el) continue;
+
+    el.classList.add('visible');
+    el.style.order = i;
+
+    const fill = el.querySelector('.bar-fill');
+    const widthPct = (total / maxTotal) * 85;
+    fill.style.width = widthPct + '%';
+    fill.style.background = barColor(total);
+
+    const countEl = el.querySelector('.bar-count');
+    countEl.textContent = total;
+
+    const nameEl = el.querySelector('.bar-name');
+    nameEl.classList.toggle('hot', total >= 10);
+
+    // Pulse effect for senders active this week
+    const isActive = weekSenders.some(ws => ws.name === name);
+    el.classList.toggle('just-added', isActive);
+    if (isActive) {
+      setTimeout(() => el.classList.remove('just-added'), speed * 0.8);
+    }
+  }
+
+  // Update week activity panel
+  const activityHtml = weekSenders
+    .sort((a,b) => b.count - a.count)
+    .map(ws => `<div class="week-item visible"><span>${ws.name}</span><span class="wi-count">+${ws.count}</span></div>`)
+    .join('');
+  document.getElementById('weekActivity').innerHTML = activityHtml || '<div class="week-item visible" style="color:#333">No emails this week</div>';
+
+  // Update mini heatmap
+  for (const [name, weeks] of Object.entries(data)) {
+    const count = weeks[week] || 0;
+    if (count > 0) {
+      const cell = document.querySelector(`.mini-cell[data-week="${week}"][data-sender="${CSS.escape(name)}"]`);
+      if (cell) {
+        cell.style.background = heatColor(count);
+        cell.classList.add('pop');
+        setTimeout(() => cell.classList.remove('pop'), 300);
+      }
+    }
+  }
+}
+
+function play() {
+  if (currentWeekIdx >= allWeeks.length - 1) reset();
+  document.getElementById('btnPlay').classList.add('active');
+  document.getElementById('btnPause').classList.remove('active');
+  interval = setInterval(advanceWeek, speed);
+}
+
+function pause() {
+  document.getElementById('btnPlay').classList.remove('active');
+  document.getElementById('btnPause').classList.add('active');
+  clearInterval(interval);
+  interval = null;
+}
+
+function reset() {
+  pause();
+  currentWeekIdx = -1;
+  running = {};
+  weekTotals = [];
+  peakWeek = 0;
+
+  document.getElementById('statTotal').textContent = '0';
+  document.getElementById('statSenders').textContent = '0';
+  document.getElementById('statWeek').textContent = '0';
+  document.getElementById('statPeak').textContent = '0';
+  document.getElementById('avgValue').textContent = '0.0';
+  document.getElementById('avgFill').style.width = '0%';
+  document.getElementById('currentWeek').textContent = '—';
+  document.getElementById('timelineFill').style.width = '0%';
+  document.getElementById('weekActivity').innerHTML = '';
+
+  document.querySelectorAll('.bar-row').forEach(el => {
+    el.classList.remove('visible');
+    el.querySelector('.bar-fill').style.width = '0%';
+    el.querySelector('.bar-count').textContent = '0';
+  });
+  document.querySelectorAll('.mini-cell').forEach(el => {
+    el.style.background = '#0d1117';
+  });
+}
+
+// Controls
+document.getElementById('btnPlay').addEventListener('click', play);
+document.getElementById('btnPause').addEventListener('click', pause);
+document.getElementById('btnReset').addEventListener('click', reset);
+
+document.querySelectorAll('.btn.speed').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.btn.speed').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    speed = parseInt(btn.dataset.ms);
+    if (interval) { clearInterval(interval); interval = setInterval(advanceWeek, speed); }
+  });
+});
+
+// Timeline click to seek
+document.getElementById('timelineBar').addEventListener('click', (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const targetIdx = Math.floor(pct * allWeeks.length);
+
+  // Reset and replay to target
+  const wasRunning = !!interval;
+  pause();
+  currentWeekIdx = -1;
+  running = {};
+  weekTotals = [];
+  peakWeek = 0;
+
+  document.querySelectorAll('.bar-row').forEach(el => {
+    el.classList.remove('visible');
+    el.querySelector('.bar-fill').style.width = '0%';
+    el.querySelector('.bar-count').textContent = '0';
+  });
+  document.querySelectorAll('.mini-cell').forEach(el => {
+    el.style.background = '#0d1117';
+  });
+
+  // Fast-forward
+  while (currentWeekIdx < targetIdx) advanceWeek();
+  if (wasRunning) play();
+});
+
+// Init
+buildBars();
+buildMiniHeat();
+
+// Auto-play after a beat
+setTimeout(play, 500);
+</script>
+</body>
+</html>
