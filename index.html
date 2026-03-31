@@ -59,6 +59,15 @@
   .mini-cell { width: 14px; height: 14px; border-radius: 2px; background: #0d1117; transition: background 0.4s ease, transform 0.2s; }
   .mini-cell.pop { transform: scale(1.3); }
 
+  /* Reading time callout */
+  .callout { background: linear-gradient(135deg, #1a1a2e, #16213e); border: 1px solid #e94560; border-radius: 10px; padding: 16px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 20px; }
+  .callout-hours { font-size: 36px; font-weight: 800; color: #e94560; white-space: nowrap; }
+  .callout-hours span { font-size: 16px; font-weight: 400; color: #888; }
+  .callout-text { font-size: 13px; color: #8b949e; line-height: 1.5; }
+  .callout-text strong { color: #c9d1d9; }
+  .callout-words { font-size: 11px; color: #555; margin-top: 4px; }
+  .callout-words .wc { color: #58a6ff; font-weight: 600; }
+
   /* Avg per day bar */
   .avg-container { margin-bottom: 20px; }
   .avg-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
@@ -102,6 +111,14 @@
   <div class="stat"><div class="stat-value" id="statSenders">0</div><div class="stat-label">Active Senders</div></div>
   <div class="stat"><div class="stat-value" id="statWeek">0</div><div class="stat-label">This Week</div></div>
   <div class="stat"><div class="stat-value" id="statPeak">0</div><div class="stat-label">Peak Week</div></div>
+</div>
+
+<div class="callout">
+  <div class="callout-hours" id="calloutHours">0<span> hrs</span></div>
+  <div>
+    <div class="callout-text"><strong>Time to just read these emails</strong> at average pace (250 wpm). No replying, no filing, no acting. This is one advisor at one small acquired firm.</div>
+    <div class="callout-words"><span class="wc" id="calloutWords">0</span> words counted across <span class="wc" id="calloutEmails">0</span> emails</div>
+  </div>
 </div>
 
 <div class="avg-container">
@@ -176,6 +193,13 @@ const data = {
   "NFP Employee Benefits": {"2026-03-02":2,"2026-03-09":1,"2026-03-16":1}
 };
 
+// Total words: 327,826 across 586 emails (measured, not estimated)
+// Average words per email: 559
+const TOTAL_WORDS = 327826;
+const TOTAL_EMAILS = 586;
+const AVG_WORDS_PER_EMAIL = TOTAL_WORDS / TOTAL_EMAILS;
+const READING_WPM = 250;
+
 // All weeks sorted
 const allWeeks = [...new Set(Object.values(data).flatMap(w => Object.keys(w)))].sort();
 const allSenders = Object.keys(data);
@@ -183,6 +207,7 @@ const allSenders = Object.keys(data);
 // State
 let currentWeekIdx = -1;
 let running = {};  // sender -> running total
+let runningEmailCount = 0;
 let weekTotals = [];  // total per week
 let peakWeek = 0;
 let interval = null;
@@ -282,10 +307,18 @@ function advanceWeek() {
 
   weekTotals.push(weekTotal);
   peakWeek = Math.max(peakWeek, weekTotal);
+  runningEmailCount += weekTotal;
 
   const grandTotal = Object.values(running).reduce((a,b) => a+b, 0);
   const activeSenders = Object.values(running).filter(v => v > 0).length;
   const maxTotal = getMaxTotal();
+
+  // Update reading time callout (proportional to emails counted so far)
+  const wordsSoFar = Math.round(runningEmailCount * AVG_WORDS_PER_EMAIL);
+  const hoursSoFar = (wordsSoFar / READING_WPM / 60);
+  document.getElementById('calloutHours').innerHTML = hoursSoFar.toFixed(1) + '<span> hrs</span>';
+  document.getElementById('calloutWords').textContent = wordsSoFar.toLocaleString();
+  document.getElementById('calloutEmails').textContent = runningEmailCount.toLocaleString();
 
   // Calculate avg emails per day
   const firstWeek = new Date(allWeeks[0] + 'T12:00:00');
@@ -388,9 +421,13 @@ function reset() {
   pause();
   currentWeekIdx = -1;
   running = {};
+  runningEmailCount = 0;
   weekTotals = [];
   peakWeek = 0;
 
+  document.getElementById('calloutHours').innerHTML = '0<span> hrs</span>';
+  document.getElementById('calloutWords').textContent = '0';
+  document.getElementById('calloutEmails').textContent = '0';
   document.getElementById('statTotal').textContent = '0';
   document.getElementById('statSenders').textContent = '0';
   document.getElementById('statWeek').textContent = '0';
