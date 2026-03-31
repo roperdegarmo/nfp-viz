@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFP Integration Roadmap - Signature Personal Insurance</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    color: #e0e0e0;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .container { max-width: 1440px; margin: 0 auto; padding: 24px 32px; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 32px 24px;
+    border-bottom: 1px solid #21262d;
+  }
+  .header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    letter-spacing: -0.02em;
+  }
+  .header .subtitle {
+    font-size: 0.95rem;
+    color: #8b949e;
+    margin-top: 6px;
+  }
+  .header .date-range {
+    font-size: 0.85rem;
+    color: #58a6ff;
+    margin-top: 4px;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .stat-card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #f0f6fc;
+    line-height: 1;
+  }
+  .stat-card .stat-label {
+    font-size: 0.8rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+  }
+  .stat-card.highlight .stat-value { color: #f85149; }
+  .stat-card.green .stat-value { color: #3fb950; }
+  .stat-card.yellow .stat-value { color: #d29922; }
+  .stat-card.blue .stat-value { color: #58a6ff; }
+
+  /* Insight banner */
+  .insight-banner {
+    background: linear-gradient(135deg, #1a1e2e 0%, #161b22 100%);
+    border: 1px solid #30363d;
+    border-left: 4px solid #f85149;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .insight-banner h2 {
+    font-size: 1.1rem;
+    color: #f85149;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .insight-banner p {
+    font-size: 0.92rem;
+    color: #c9d1d9;
+    line-height: 1.7;
+  }
+  .insight-banner .callout {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(56, 139, 253, 0.08);
+    border: 1px solid rgba(56, 139, 253, 0.2);
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: #58a6ff;
+  }
+
+  /* Section */
+  .section {
+    margin: 32px 0;
+  }
+  .section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f0f6fc;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #21262d;
+  }
+
+  /* Charts */
+  .chart-container {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* Bar chart */
+  .bar-group { margin-bottom: 10px; }
+  .bar-label {
+    font-size: 0.82rem;
+    color: #8b949e;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .bar-label .count { color: #f0f6fc; font-weight: 600; }
+  .bar-track {
+    height: 28px;
+    background: #0d1117;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+    transition: width 0.6s ease;
+    min-width: 2px;
+  }
+  .bar-fill:last-child { border-radius: 0 4px 4px 0; }
+  .bar-fill.fulfilled { background: #3fb950; }
+  .bar-fill.partial { background: #d29922; }
+  .bar-fill.unclear { background: #f85149; }
+
+  /* Timeline bars */
+  .timeline-bar-segment {
+    height: 100%;
+    display: inline-block;
+    min-width: 1px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin: 12px 0 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #8b949e;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Status legend */
+  .status-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+  .status-legend .legend-item { font-size: 0.8rem; }
+
+  /* Sender table */
+  .sender-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .sender-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #0d1117;
+    color: #8b949e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #21262d;
+  }
+  .sender-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #161b22;
+    color: #c9d1d9;
+  }
+  .sender-table tr:hover td { background: rgba(56, 139, 253, 0.04); }
+  .sender-table .rank { color: #484f58; font-weight: 600; width: 36px; }
+  .sender-table .sender-name { color: #f0f6fc; font-weight: 500; }
+  .sender-table .sender-role { color: #8b949e; font-size: 0.8rem; }
+  .sender-table .count-cell { font-weight: 700; color: #58a6ff; text-align: center; width: 60px; }
+
+  /* Mini bar in sender table */
+  .mini-bar {
+    height: 6px;
+    background: #0d1117;
+    border-radius: 3px;
+    overflow: hidden;
+    width: 120px;
+  }
+  .mini-bar-fill {
+    height: 100%;
+    background: #58a6ff;
+    border-radius: 3px;
+  }
+
+  /* Full ask table */
+  .table-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .table-controls select, .table-controls input {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+  }
+  .table-controls select:focus, .table-controls input:focus {
+    outline: none;
+    border-color: #58a6ff;
+  }
+  .table-controls label {
+    font-size: 0.78rem;
+    color: #8b949e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .result-count {
+    font-size: 0.82rem;
+    color: #8b949e;
+    margin-left: auto;
+  }
+
+  .ask-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .ask-table th {
+    text-align: left;
+    padding: 10px 10px;
+    background: #0d1117;
+    color: #8b949e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid #21262d;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .ask-table th:hover { color: #58a6ff; }
+  .ask-table th .sort-arrow { margin-left: 4px; font-size: 0.65rem; }
+  .ask-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #161b22;
+    color: #c9d1d9;
+    vertical-align: top;
+  }
+  .ask-table tr:hover td { background: rgba(56, 139, 253, 0.04); }
+  .ask-table .date-cell { white-space: nowrap; color: #8b949e; width: 90px; }
+  .ask-table .from-cell { width: 140px; color: #d2a8ff; font-weight: 500; }
+  .ask-table .to-cell { width: 80px; color: #8b949e; font-size: 0.78rem; }
+  .ask-table .ask-cell { min-width: 280px; }
+  .ask-table .cat-cell { width: 100px; }
+  .ask-table .deadline-cell { width: 90px; white-space: nowrap; color: #8b949e; }
+
+  /* Category badges */
+  .cat-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .cat-integration { background: rgba(56, 139, 253, 0.15); color: #58a6ff; }
+  .cat-operations { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+  .cat-compliance { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+  .cat-hr\/benefits, .cat-hr-benefits { background: rgba(163, 113, 247, 0.15); color: #a371f7; }
+  .cat-training { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+  .cat-reporting { background: rgba(121, 192, 255, 0.15); color: #79c0ff; }
+  .cat-client-work { background: rgba(255, 166, 87, 0.15); color: #ffa657; }
+  .cat-technology { background: rgba(238, 119, 167, 0.15); color: #ee77a7; }
+  .cat-marketing { background: rgba(187, 128, 9, 0.15); color: #bb8009; }
+
+  /* Status badges */
+  .status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .status-yes { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+  .status-unclear { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+  .status-partial { background: rgba(210, 153, 34, 0.15); color: #d29922; }
+  .status-no { background: rgba(248, 81, 73, 0.3); color: #ff7b72; }
+
+  /* Open items section */
+  .open-items-list { list-style: none; }
+  .open-item {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-left: 3px solid #f85149;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+  }
+  .open-item:hover { border-left-color: #58a6ff; }
+  .open-item .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .open-item .item-ask {
+    font-size: 0.88rem;
+    color: #f0f6fc;
+    font-weight: 500;
+    flex: 1;
+  }
+  .open-item .item-meta {
+    font-size: 0.78rem;
+    color: #8b949e;
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .open-item .item-detail {
+    font-size: 0.8rem;
+    color: #8b949e;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* Category colors for timeline chart */
+  .cat-color-integration { background: #58a6ff; }
+  .cat-color-operations { background: #d29922; }
+  .cat-color-compliance { background: #f85149; }
+  .cat-color-hr-benefits { background: #a371f7; }
+  .cat-color-training { background: #3fb950; }
+  .cat-color-reporting { background: #79c0ff; }
+  .cat-color-client-work { background: #ffa657; }
+  .cat-color-technology { background: #ee77a7; }
+  .cat-color-marketing { background: #bb8009; }
+
+  /* Tooltip */
+  .ask-table td.ask-cell { position: relative; cursor: default; }
+  .detail-tooltip {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 100;
+    background: #1c2128;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px 16px;
+    max-width: 420px;
+    font-size: 0.8rem;
+    color: #c9d1d9;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    pointer-events: none;
+  }
+  .ask-cell:hover .detail-tooltip { display: block; }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .stats-row { grid-template-columns: repeat(3, 1fr); }
+    .chart-row { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .container { padding: 16px; }
+  }
+
+  /* Scrollable table wrapper */
+  .table-wrapper { overflow-x: auto; }
+
+  .footer {
+    text-align: center;
+    padding: 32px 0;
+    border-top: 1px solid #21262d;
+    margin-top: 40px;
+    font-size: 0.78rem;
+    color: #484f58;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>NFP Integration Roadmap</h1>
+  <div class="subtitle">Every ask, request, and action item directed at Signature Personal Insurance</div>
+  <div class="date-range">February 17 - March 30, 2026 (6 weeks post-close)</div>
+</div>
+
+<div class="container">
+
+  <!-- Stats Row -->
+  <div class="stats-row" id="stats-row"></div>
+
+  <!-- Insight Banner -->
+  <div class="insight-banner">
+    <h2>The Integration Firehose</h2>
+    <p>
+      In just <strong>6 weeks</strong> since closing, NFP has directed <strong id="total-asks-text">186</strong> distinct asks at a 3-person team
+      from <strong id="sender-count-text">47</strong> different NFP personnel across <strong>9 functional categories</strong>.
+      That is roughly <strong id="daily-rate-text">6.2</strong> asks per business day, arriving from people in
+      HR, Operations, Technology, Compliance, Accounting, Treasury, M&A Integration, Regional Leadership, and Carrier Management ...
+      with no centralized tracker, no prioritization, and no single point of contact.
+    </p>
+    <div class="callout">
+      <strong>Why this matters:</strong> Keara Connelly (M&A Integration Management) has asked to meet to review open items.
+      This roadmap IS the answer. It captures every ask, shows what has been fulfilled, and surfaces the items that still need attention or discussion.
+      This is what integration looks like from the acquired firm's side.
+    </div>
+  </div>
+
+  <!-- Timeline Chart -->
+  <div class="section">
+    <h2>Volume by Week</h2>
+    <div class="chart-container" id="timeline-chart"></div>
+  </div>
+
+  <!-- Category + Status Charts -->
+  <div class="section">
+    <h2>Breakdown</h2>
+    <div class="chart-row">
+      <div class="chart-container">
+        <h3 style="font-size:0.9rem; color:#8b949e; margin-bottom:16px;">By Category</h3>
+        <div id="category-chart"></div>
+      </div>
+      <div class="chart-container">
+        <h3 style="font-size:0.9rem; color:#8b949e; margin-bottom:16px;">Fulfillment Status by Category</h3>
+        <div class="status-legend">
+          <div class="legend-item"><div class="legend-swatch" style="background:#3fb950;"></div>Fulfilled</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#d29922;"></div>Partial</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#f85149;"></div>Unclear / Open</div>
+        </div>
+        <div id="status-chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Who's Asking -->
+  <div class="section">
+    <h2>Who's Asking</h2>
+    <div class="chart-container">
+      <div class="table-wrapper">
+        <table class="sender-table" id="sender-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Department / Role</th>
+              <th style="text-align:center">Asks</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Ask Table -->
+  <div class="section">
+    <h2>All Integration Asks</h2>
+    <div class="chart-container">
+      <div class="table-controls">
+        <div class="filter-group">
+          <label>Category</label>
+          <select id="filter-category">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filter-status">
+            <option value="">All Statuses</option>
+            <option value="yes">Fulfilled</option>
+            <option value="partial">Partial</option>
+            <option value="unclear">Unclear / Open</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Search</label>
+          <input type="text" id="filter-search" placeholder="Search asks..." style="width:200px;">
+        </div>
+        <span class="result-count" id="result-count"></span>
+      </div>
+      <div class="table-wrapper">
+        <table class="ask-table" id="ask-table">
+          <thead>
+            <tr>
+              <th data-sort="date">Date <span class="sort-arrow"></span></th>
+              <th data-sort="from_name">From <span class="sort-arrow"></span></th>
+              <th data-sort="to">To <span class="sort-arrow"></span></th>
+              <th data-sort="ask">Ask <span class="sort-arrow"></span></th>
+              <th data-sort="category">Category <span class="sort-arrow"></span></th>
+              <th data-sort="fulfilled">Status <span class="sort-arrow"></span></th>
+              <th data-sort="deadline">Deadline <span class="sort-arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Open Items -->
+  <div class="section">
+    <h2>Open / Unclear Items (Requires Attention)</h2>
+    <p style="font-size:0.85rem; color:#8b949e; margin-bottom:16px;">
+      These asks have not been clearly fulfilled. Review with Keara Connelly to determine which are still active, which can be closed, and which need action.
+    </p>
+    <ul class="open-items-list" id="open-items"></ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  Generated by Claude Code on March 30, 2026 &middot; Signature Personal Insurance &middot; NFP Integration Tracking
+</div>
+
+<script>
+const DATA = [{"date": "2026-02-22", "from": "Jacqueline Searles (NFP HR)", "to": "Tess", "subject": "RE: RE: Signature Employee Tracker", "ask": "Provide Tess's social security number to complete payroll setup", "detail": "Jackie confirmed all other employee data is set, but Tess's SSN was missing from her submitted documents. Jackie emailed Tess directly requesting it. Once received, they can send everything to payroll.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "\r\n <SA1PR11MB587498695F6D26C1D5653D55D876A@SA1PR11MB5874.namprd11.prod.outlook.com>", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-02-20", "from": "Julie Lovall (NFP Operations)", "to": "Roper", "subject": "RE: Policy Import", "ask": "Identify who/what 'MSI' is in the policy book", "detail": "Julie disregarded her earlier request about writing company info (they figured it out), but asked a follow-up question: 'who's MSI?' referring to a carrier or entity in the Signature policy data that NFP couldn't identify.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "\r\n <DS0PR11MB79992F6C6024A47E3D7C15B78868A@DS0PR11MB7999.namprd11.prod.outlook.com>", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-20", "from": "Mary Mullen (NFP Central Region)", "to": "Roper", "subject": "Recurring Weekly Central Team Leader Call", "ask": "Join the weekly Central Region team leader call every Thursday", "detail": "Mary sent the recurring Teams meeting invite for the weekly Central Team Leader Call. Roper was added to the leader distribution list and expected to attend starting the following Thursday.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "\r\n <IA1PR11MB6172C79114F9FC6F982901C4F768A@IA1PR11MB6172.namprd11.prod.outlook.com>", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-20", "from": "Keara Connelly (NFP M&A Integration)", "to": "Roper, Crystal, Tess", "subject": "Re: Declined: Signature Personal Insurance - Bi-Weekly Integration Review", "ask": "Accept and attend the bi-weekly integration review meeting series (Feb 27 - Aug 14)", "detail": "Roper declined the bi-weekly integration review meeting. Keara pushed back saying attendance is critical for the first several instances as NFP will need to gather items from the Signature team. She also needs Crystal and potentially Tess on these calls. Asked Roper to accept or propose alternative times.", "deadline": "2026-02-27", "category": "integration", "fulfilled": "unclear", "message_id": "\r\n <CY8PR11MB794854BB922B491FFB7AE5D08F68A@CY8PR11MB7948.namprd11.prod.outlook.com>", "from_name": "Keara Connelly", "from_role": "NFP M&A Integration"}, {"date": "2026-02-20", "from": "Julie Lovall (NFP Operations)", "to": "Roper", "subject": "Signature Policy Import - Expired policies.xlsx", "ask": "Review list of expired policies and update effective dates or confirm they don't need importing", "detail": "Julie attached a list of expired policies from the Signature book. She asked Roper to review each one, update the effective dates where applicable, or indicate which policies don't need to be imported into Epic.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "\r\n <DS0PR11MB7999219D10B4FBF3D0CDA7948868A@DS0PR11MB7999.namprd11.prod.outlook.com>", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-20", "from": "Julie Lovall (NFP Operations)", "to": "Roper", "subject": "Policy Import", "ask": "Provide writing company info for specific policies and identify Assurant writing companies", "detail": "Julie asked Roper to find the writing company info for policies from US Assure and Hagerty (Heule, Stoffer, Parks, Wiebe accounts). Also needed to know which Assurant writing company is associated with each of ~12 flood policies across multiple client accounts.", "deadline": null, "category": "operations", "fulfilled": "yes", "message_id": "\r\n <DS0PR11MB79990805F14BA3022C4308248868A@DS0PR11MB7999.namprd11.prod.outlook.com>", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-20", "from": "Jacqueline Searles (NFP HR)", "to": "Tess", "subject": "RE: RE: Signature Employee Tracker", "ask": "Complete employee data sheet and W-4 form by noon Monday 2/23", "detail": "Jackie sent Tess the password-protected employee data sheet (partially pre-populated) and a W-4 form. Asked Tess to review, update as needed, and return by end of day Friday or noon Monday. W-4 could be sent without SSN since they'd get it from the data sheet.", "deadline": "2026-02-23", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <SA1PR11MB587423314D736A909BF18D9AD868A@SA1PR11MB5874.namprd11.prod.outlook.com>", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-02-20", "from": "Jacqueline Searles (NFP HR)", "to": "Crystal", "subject": "RE: RE: Signature Employee Tracker", "ask": "Complete employee data sheet and W-4 form by noon Monday 2/23", "detail": "Jackie sent Crystal the same password-protected employee data sheet and W-4 form. Asked Crystal to review, update as needed, and return by end of day Friday or noon Monday.", "deadline": "2026-02-23", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <SA1PR11MB5874A1B573EEBEAC2EBBB9DED868A@SA1PR11MB5874.namprd11.prod.outlook.com>", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-02-20", "from": "Jacqueline Searles (NFP HR)", "to": "Roper", "subject": "RE: RE: Signature Employee Tracker", "ask": "Add SSN to employee data sheet and complete W-4, return by noon Monday 2/23", "detail": "Jackie pre-populated Roper's employee data sheet with info he provided, and asked him to add his SSN (document is password protected) and complete the attached W-4. Needed by end of day Friday or noon Monday to keep the payroll upload on schedule.", "deadline": "2026-02-23", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <SA1PR11MB5874EFEC8FD9D73108F23C3AD868A@SA1PR11MB5874.namprd11.prod.outlook.com>", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-02-20", "from": "Christopher Sam (NFP Risk Management)", "to": "Roper", "subject": "RE: E&O Tail / ERP - Post-Close, Ready to Bind", "ask": "Return call to discuss E&O tail / ERP questions", "detail": "Christopher Sam left a voicemail on Roper's cell phone after Ryan Mediate looped him in to advise on the Extended Reporting Period (ERP) tail policy. Chris asked Roper to call back to discuss any questions about the ERP.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "\r\n <SJ2PR11MB7473FE80E48E22D08B52F57FEB68A@SJ2PR11MB7473.namprd11.prod.outlook.com>", "from_name": "Christopher Sam", "from_role": "NFP Risk Management"}, {"date": "2026-02-20", "from": "Brandon Jackson (NFP Technology)", "to": "Roper, Tess", "subject": "Technology Intro- Signature Insurance", "ask": "Attend 30-minute technology integration introductory call on 2/24 at 1 PM CST", "detail": "Brandon scheduled the tech integration intro meeting after Tess confirmed Tuesday 2/24 at 1:00 PM CST. Sent the Teams meeting invite for the 30-minute session to introduce the NFP technology integration team.", "deadline": "2026-02-24", "category": "technology", "fulfilled": "yes", "message_id": "\r\n <SA3PR11MB9509B14F4029D2963AEC29E4E868A@SA3PR11MB9509.namprd11.prod.outlook.com>", "from_name": "Brandon Jackson", "from_role": "NFP Technology"}, {"date": "2026-02-20", "from": "Stephanie Goldman (NFP HR)", "to": "Roper", "subject": "RE: Signature Employee Tracker", "ask": "Confirm DOB/zip codes for all three employees and complete HRIS import template by EOD Monday 2/23", "detail": "Steph asked Roper to confirm DOB and zip codes for himself, Crystal, and Tess. Also requested the HRIS import template be completed by EOD Monday 2/23 since it feeds into HR/Payroll system and benefit enrollments. Asked about Wednesday 4-5 PM EST availability for next steps meeting.", "deadline": "2026-02-23", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <IA3PR11MB9302D6EC2D4000A8E345AB98F868A@IA3PR11MB9302.namprd11.prod.outlook.com>", "from_name": "Stephanie Goldman", "from_role": "NFP HR"}, {"date": "2026-02-19", "from": "Marco Altamirano (NFP M&A Integration)", "to": "Roper", "subject": "RE: Signature Employee Tracker", "ask": "Respond urgently to HR team requests to avoid payroll/benefits disruption", "detail": "Marco left a voicemail and sent email emphasizing urgency. The HR team needed responses to recent requests to initiate the integration program. He warned that delays would put at risk smooth continuation of benefits/401k coverage and payroll, with first payroll run planned for March 6.", "deadline": "2026-03-06", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <MW4PR11MB5774ACEDAEBD8B68500064D89F6BA@MW4PR11MB5774.namprd11.prod.outlook.com>", "from_name": "Marco Altamirano", "from_role": "NFP M&A Integration"}, {"date": "2026-02-19", "from": "Keara Connelly (NFP M&A Integration)", "to": "Roper, Crystal, Tess", "subject": "RE: Signature Employee Tracker", "ask": "Complete and return employee tracker urgently -- last item needed for HRIS setup", "detail": "Keara escalated the urgency, noting the completed tracker is the last remaining input HR needs for HRIS setup. Without it, benefits enrollment (targeted for immediate effectiveness) and payroll setup (first run March 6) would be delayed. Asked for completion by EOD or next day.", "deadline": "2026-02-20", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <CY8PR11MB794868C3CDB3D6E9F993960A8F6BA@CY8PR11MB7948.namprd11.prod.outlook.com>", "from_name": "Keara Connelly", "from_role": "NFP M&A Integration"}, {"date": "2026-02-19", "from": "Keara Connelly (NFP M&A Integration)", "to": "Roper", "subject": "Signature Employee Tracker", "ask": "Provide status update on employee tracker completion and return it before Thursday 2/27", "detail": "Initial check-in from Keara asking if Roper had completed the employee tracker HR had requested. Acknowledged he may have been focused on closing. Asked for a status update and ideally the completed tracker before next Thursday (2/27).", "deadline": "2026-02-27", "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <CY8PR11MB794891C83A2460F1E8FA329F8F6BA@CY8PR11MB7948.namprd11.prod.outlook.com>", "from_name": "Keara Connelly", "from_role": "NFP M&A Integration"}, {"date": "2026-02-19", "from": "Julie Lovall (NFP Operations)", "to": "Roper", "subject": "Laptops", "ask": "Confirm whether team uses Mac or PC laptops", "detail": "Julie asked 'Are you on Macs?' -- relevant to technology integration planning and NFP laptop provisioning for the Signature team.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "\r\n <DS0PR11MB7999B9978DA89D251A3CB7F3886BA@DS0PR11MB7999.namprd11.prod.outlook.com>", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-19", "from": "Brandon Jackson (NFP Technology)", "to": "Roper, Tess", "subject": "Re: Email Security and credentials", "ask": "Schedule 30-minute technology integration intro meeting from three proposed time slots", "detail": "Brandon requested 30 minutes for introductions to the NFP technology integration team. Offered three time slots: Monday 2/23 10:30-11:00 CST, Tuesday 2/24 1:00-1:30 CST, or Wednesday 2/25 12:00-12:30 CST. Tess confirmed Tuesday 2/24.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "\r\n <SA3PR11MB9509FFF5690DC5751572F9A9E86BA@SA3PR11MB9509.namprd11.prod.outlook.com>", "from_name": "Brandon Jackson", "from_role": "NFP Technology"}, {"date": "2026-02-18", "from": "Eugene Likhterman (NFP Treasury)", "to": "Roper", "subject": "RE: NFP Accounting Introductions", "ask": "Add three NFP executives as authorized signers on Landmark National Bank operating account", "detail": "Eugene requested that Caleb Noel (EVP & CFO), Michael Campbell (EVP & Chief Accounting Officer), and Daniel Sico (SVP & Corporate Controller) be added as authorized signers on the Landmark National Bank operating account.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "\r\n <MN2PR11MB404595167C8CBB8035BE512FAF6AA@MN2PR11MB4045.namprd11.prod.outlook.com>", "from_name": "Eugene Likhterman", "from_role": "NFP Treasury"}, {"date": "2026-02-18", "from": "Cassandra Stutz (NFP Accounting)", "to": "Roper", "subject": "NFP Accounting Introductions", "ask": "Provide 2/17/26 closing financials with support schedules for opening balance sheet review", "detail": "Cassandra requested the closing date (2/17/26) financials including balance sheet and income statement, along with support schedules (bank statements, bank reconciliations, AR aging, AP sub-ledger) so NFP can adjust opening balances and update GL mapping. Also noted Roper should stop recording amortization/depreciation and send invoices for asset purchases over $2,500 going forward.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "\r\n <IA1PR11MB94725891EAC088EE75C94706E56AA@IA1PR11MB9472.namprd11.prod.outlook.com>", "from_name": "Cassandra Stutz", "from_role": "NFP Accounting"}, {"date": "2026-02-18", "from": "Tracy McClain (NFP Technology)", "to": "Roper, Tess", "subject": "Email Security and credentials", "ask": "Implement five email security measures ASAP and provide admin access to Google Workspace and domain registrar", "detail": "Tracy listed five security measures to implement as soon as possible: (1) MFA via Authenticator app with OTP, (2) geofencing conditional access policies, (3) token re-authentication from non-domain joined machines, (4) device restriction policies on non-domain joined devices, (5) unified audit logging. Also requested Google Workspace Global Admin account and Tucows domain registrar full admin access.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "\r\n <DM3PR11MB87139D15FB739E611D7E3E41F96AA@DM3PR11MB8713.namprd11.prod.outlook.com>", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-02-18", "from": "Mary Mullen (NFP Central Region)", "to": "Roper", "subject": "FW: Internal: Scaling Smarter: Tech & AI Office Hours - DW (Weekly)", "ask": "Join the Friday afternoon Tech & AI Office Hours call with Derick Warner", "detail": "Mary forwarded the invite for Derick Warner's weekly 'Scaling Smarter: Tech & AI Office Hours' session and said she'd send a calendar invite for Friday 2/20 from 2-3 PM. Roper enthusiastically accepted.", "deadline": "2026-02-20", "category": "training", "fulfilled": "yes", "message_id": "\r\n <IA1PR11MB6172CFA8EAAD1EA337FBB843F76AA@IA1PR11MB6172.namprd11.prod.outlook.com>", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-18", "from": "Stephanie Goldman (NFP HR)", "to": "Roper", "subject": "NFP HR Onboarding Template - Signature Personal Insurance", "ask": "Complete and return employee tracker AND HRIS import template by end of week (2/21); confirm Friday 3-5 PM availability", "detail": "Steph sent the HRIS import template (PeopleFirst Portal / Ultimate Software) along with the previously sent employee tracker. The template collects demographics, direct deposit, compensation data and drives all HR onboarding. Asked for both completed and returned before end of week. Also asked about Friday afternoon (3-5 PM) availability for the official HR integration meeting.", "deadline": "2026-02-21", "category": "HR/benefits", "fulfilled": "partial", "message_id": "\r\n <IA3PR11MB930274C0355F6DA4FD2191ECF86AA@IA3PR11MB9302.namprd11.prod.outlook.com>", "from_name": "Stephanie Goldman", "from_role": "NFP HR"}, {"date": "2026-02-18", "from": "Mary Mullen (NFP Central Region)", "to": "Roper, Crystal, Tess", "subject": "RE: Congratulations and welcome to NFP!!!", "ask": "Attend Friday morning Teams re-group meeting with NFP operations team", "detail": "Mary scheduled a follow-up Teams meeting for Friday morning with the Signature team. Julie Lovall would attend in place of Amy Ciasulli. Asked team to confirm attendance or let her know if they cannot make it.", "deadline": "2026-02-20", "category": "integration", "fulfilled": "yes", "message_id": "\r\n <IA1PR11MB6172405D0FDE20340D0FC02CF76AA@IA1PR11MB6172.namprd11.prod.outlook.com>", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-20", "from": "Mary Mullen (NFP Central Region)", "to": "all PCG", "subject": "FW: Travelers Personal Insurance Partnership Level Opportunity", "ask": "Share Travelers partnership opportunity with staff and consider writing 10 new Travelers policies by March 25", "detail": "Mary forwarded Amy Ciasulli's message about elevating NFP's status with Travelers by issuing 10 new policies by March 25. Travelers is now open for monoline auto in 22 states with rate reductions filed. Asked leaders to share with their staff and encourage considering Travelers for relevant policies.", "deadline": "2026-03-25", "category": "operations", "fulfilled": "unclear", "message_id": "\r\n <IA1PR11MB6172E8A85D8C1D40888247BCF768A@IA1PR11MB6172.namprd11.prod.outlook.com>", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-19", "from": "Stephanie Goldman (NFP HR)", "to": "Roper", "subject": "RE: Signature Employee Tracker", "ask": "Schedule meeting to walk through HR data needs and discuss payroll/benefits next steps", "detail": "Steph offered to resend documents and set up a meeting to walk through the data needed immediately, then discuss next steps for payroll, benefits, and other time-sensitive HR items. Proposed three time slots for the next day (9-9:30, 10:30-11, or 3-3:30).", "deadline": null, "category": "HR/benefits", "fulfilled": "yes", "message_id": "\r\n <IA3PR11MB9302C942C48DB9BEFCA90665F86BA@IA3PR11MB9302.namprd11.prod.outlook.com>", "from_name": "Stephanie Goldman", "from_role": "NFP HR"}, {"date": "2026-03-30", "from": "Mary Bamford", "to": "Roper", "subject": "RE: Ruben Brown Inquiry", "ask": "Provide insight into outstanding items preventing QuickBooks entries so Mary can assist with a workaround", "detail": "Mary Bamford is following up after Roper told her on Friday's integration call to reach out to RubinBrown. She needs to understand what items are blocking QuickBooks entries so she can help develop a workaround process to meet the accounting deadline.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d40eba79ab0773", "from_name": "Mary Bamford", "from_role": null}, {"date": "2026-03-30", "from": "Julie Lovall", "to": "Roper", "subject": "RE: Life Policies", "ask": "Provide a list of active life insurance policies with policy numbers, effective dates, carrier, premium, and commission", "detail": "Julie clarified she only needs active/in-force policies and Roper can pull whatever is available from his side. This is for entry into Epic once Roper's branch is active. Original request was on 3/27.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d3fa9fdb10d0aa", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-30", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: Your Travel Insurance Plan - Rhonda Rotker", "ask": "Claim and enter client/policy into Epic for Rhonda Rotker travel insurance policy #500004514", "detail": "A travel insurance policy was issued for Rhonda Rotker. Someone in PCG needs to claim this client and enter the policy into Epic.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d3f68d70646e0a", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-30", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: Your Travel Insurance Plan - Matthew Rotker", "ask": "Claim and enter client/policy into Epic for Matthew Rotker travel insurance policy #500004515", "detail": "A travel insurance policy was issued for Matthew Rotker. Someone in PCG needs to claim this client and enter the policy into Epic.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d3f68330057d3e", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-30", "from": "Keara Connelly", "to": "Roper", "subject": "Integration Pipeline Items", "ask": "Schedule a check-in call to review status of integration items on Roper's list", "detail": "Keara from M&A Integration Management wants to set up time to review where things stand on integration items, understand incoming requests from various teams, and help with prioritization and support. She asked for availability in the next week.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d3f291c9c75e14", "from_name": "Keara Connelly", "from_role": "NFP M&A Integration"}, {"date": "2026-03-30", "from": "Teresa Wharton", "to": "all PCG (PR Leaders)", "subject": "URGENT - MANAGER REPORTS", "ask": "Review and resolve Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, Open RXDT reports and confirm when addressed", "detail": "Teresa flagged urgent operational reports including missed expirations, unsubmitted renewals, unissued SSRs (some going back 12+ months), and open RXDT items. Items 60+ days past follow-up are highlighted. Leaders must ensure their teams are pulling and reviewing these reports, resolving errors, and managing policies assigned to departed employees. Confirmation required when addressed.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d3f25c440efc1d", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-30", "from": "John Seckner", "to": "Roper", "subject": "RE: Registrar & DNS Discussion - Availability Next Week", "ask": "Export DNS settings for each domain into an Excel spreadsheet with all DNS records", "detail": "John needs a complete list of all DNS records for each of Roper's domains (signaturepersonalinsurance.com, trustspi.com, signatureadvisor.com) exported to Excel. After that, they'll review together and then stage domains in Brandsight, which takes about two weeks.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19d3ee3da879012d", "from_name": "John Seckner", "from_role": null}, {"date": "2026-03-27", "from": "Julie Lovall", "to": "Roper", "subject": "Life Policies", "ask": "Provide a list of life insurance policies for Epic entry including policy number, effective dates, carrier, premium, and commission", "detail": "Julie needs Roper's life insurance policy data to manually enter into Epic after his branch is active. This is the original request that was later clarified in the 3/30 follow-up to only need active policies.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d307f3f528a317", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-27", "from": "Katherine Minami", "to": "Roper", "subject": "Re: Gaya", "ask": "Schedule a meeting to discuss the Gaya pilot and AI initiatives", "detail": "Mary Mullen introduced Roper to Katherine Minami (SVP of Operations, Innovation) who leads the Gaya pilot and NFP Connect. Katherine asked Roper to recommend dates/times to connect and discuss the pilot program.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19d305c838995317", "from_name": "Katherine Minami", "from_role": null}, {"date": "2026-03-27", "from": "Mary Mullen", "to": "Roper", "subject": "Gaya", "ask": "Connect with Katherine Minami to learn about the Gaya pilot program", "detail": "Mary introduced Roper and Katherine Minami, asking them to connect soon. Mary wants to leverage Roper's AI expertise for Personal Risk initiatives and wants him to learn about the current Gaya pilot.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19d303d6698d09f9", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-27", "from": "Mary Mullen", "to": "Roper (and ops team)", "subject": "FW: New Ways to Serve Clients: EZ Quote, Fire Prevention & Travel Enhancements", "ask": "Explore getting digitized Chubb legal notices through the PRSC team", "detail": "Mary forwarded a Chubb announcement about digitized legal notices now available on the Agent Portal and suggested enlisting the PRSC team to set this up. This was sent to ops team and central team leaders for awareness.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d301c8de59273f", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-27", "from": "John Seckner", "to": "Roper", "subject": "Registrar & DNS Discussion - Availability Next Week", "ask": "Schedule a meeting to discuss domain registrar migration and DNS transfer to NFP", "detail": "As part of integration, NFP needs to migrate Roper's domain names (currently on Hover) to NFP's registrar. John asked for availability to meet and discuss the transition.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19d30016a2e5eb9f", "from_name": "John Seckner", "from_role": null}, {"date": "2026-03-25", "from": "Julie Lovall", "to": "all PCG (PR Leaders)", "subject": "PCG Confidential Client", "ask": "Review attached report of clients missing 'PCG Confidential Client' coding and update as needed", "detail": "Julie sent a report of clients in the PCG structure not coded as 'PCG Confidential Client' at the account level. Without this coding, clients can be viewed by non-Personal Risk employees and included in Corporate P&C marketing campaigns. Leaders need to review, update, and remind teams to add this when creating new prospects/clients.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d26d0f0fed9b93", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-25", "from": "Samantha Brown", "to": "Roper, Tess", "subject": "RE: NFP Carrier Management - Market notifications - Step 2", "ask": "Review the attached carrier notification letter and report any questions or concerns", "detail": "Sam Brown from Carrier Management sent the carrier notification document with M&A updates (address, contacts, staff, download settings, agency codes, commission schedules, W9/E&O) for Roper and Tess to review. She also asked if an NFP email is being created to replace Admin@SignatureAdvisor.com.", "deadline": null, "category": "integration", "fulfilled": "partial", "message_id": "19d26a9a3abce51c", "from_name": "Samantha Brown", "from_role": "Carrier Management"}, {"date": "2026-03-25", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Signature Personal Insurance - Day in the Life Review", "ask": "Discuss UltiPro goals with Crystal and Tess (goals have been added for all three)", "detail": "Mary confirmed that UltiPro goals have been loaded for Roper, Crystal, and Tess. She wants Roper to discuss the goals with Crystal and Tess, either before or after Mary returns from Spring Break. This was added as a topic for the next meeting.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19d25831d342d75e", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-25", "from": "Susan Clifford", "to": "Roper", "subject": "RE: AI Agent?", "ask": "Schedule a call to walk through options for the !ALT/Data Integrity report aggregation solution", "detail": "Susan responded to Roper's scoping questions about automating the !ALT report with inline answers. She wants to get a call on the calendar to walk through options. She noted the solution should also apply to the dollar-ALT report they receive daily. Teams meeting invite was sent separately.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19d25573bd8e009b", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-25", "from": "Mary Mullen", "to": "Roper (and central team leaders)", "subject": "Rescheduled Team Lead Mtg (3/27 at 9a CST)", "ask": "Attend rescheduled team leader meeting on 3/27 at 9am CST and confirm if unable to make new time", "detail": "Mary rescheduled the regular team leader meeting to Friday 3/27 at 9am CST because Brett is pulling her into a potential acquisition meeting during the regular timeslot. She asked to be notified if anyone can't make the new time.", "deadline": "2026-03-27", "category": "operations", "fulfilled": "yes", "message_id": "19d2585fc977ee97", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-26", "from": "NFP P&C Operating Platform Program", "to": "all PCG", "subject": "Reminder to Register: Q2 2026 US Epic Refresher Training", "ask": "Register for Q2 2026 US Epic Refresher Training (April 13-24)", "detail": "Reminder that Epic Refresher Training starts April 13, 2026. Team members need to register via SignupGenius, selecting appropriate line of business and classes. Within 24-48 hours of registration, an Outlook calendar invite with Teams info will be sent.", "deadline": "2026-04-13", "category": "training", "fulfilled": "unclear", "message_id": "19d2a75e3a8811eb", "from_name": "NFP P&C Operating Platform Program", "from_role": null}, {"date": "2026-03-24", "from": "Julie Lovall", "to": "all PCG (PR Leaders)", "subject": "AON Onboard Email", "ask": "Follow Coupa Catalog instructions for supply ordering (replacing WB Mason) when onboard email arrives", "detail": "Julie informed leaders that supply ordering is transitioning from WB Mason to Coupa Catalog to align with Aon. Team members will receive onboard emails with instructions and should proceed with the setup.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d21f3fac39abee", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-24", "from": "Julie Lovall", "to": "all PCG (PR Leaders)", "subject": "FW: FREE CE - CHUBB & NFP - Elements of Flood Insurance: The NFIP Policy - Registration", "ask": "Forward the free Chubb flood CE course registration to your PR teams as appropriate", "detail": "Julie asked leaders to distribute a free flood CE webinar opportunity partnered with Chubb to their teams. The course is capped at 150 people and registration is required for CE credit. Leaders need to check approved states before distributing.", "deadline": null, "category": "training", "fulfilled": "unclear", "message_id": "19d21e7df4441bdd", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-24", "from": "Julie Lovall", "to": "all PCG", "subject": "TME Policy - Charles Clough Policy # 300001751", "ask": "Claim and enter Charles Clough TME policy into Epic so the AOC can post revenue", "detail": "A TME policy for Charles Clough (policy #300001751) needs to be claimed and entered into Epic. The AOC (Account of Current) needs to post revenue, making this time-sensitive.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d216365b679de0", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-24", "from": "John Seckner", "to": "Roper", "subject": "Tech Questionnaire for Signature Personal Insurance", "ask": "Complete and return the technical questionnaire for email migration discovery", "detail": "John sent a technical questionnaire as part of email migration discovery to gather information about Signature's tech environment. He asked Roper to fill it out and return it as soon as possible, noting it's okay if not all answers are known.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19d215eb80539b2a", "from_name": "John Seckner", "from_role": null}, {"date": "2026-03-24", "from": "Teresa Wharton", "to": "all PCG (PR Leaders)", "subject": "Fw: Cross Structure Workflow Updates", "ask": "Review the Cross Structure Referral Workflow on SharePoint and ensure teams follow the primary/secondary AM communication protocol", "detail": "Teresa shared updated cross-structure workflow instructions. When an account has lines referred to another office, the primary AM is client-facing and handles all insured communication. Secondary AMs communicate only with the primary AM. The workflow is pinned on the NFP Personal Risk SharePoint.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d2156e5e046527", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-25", "from": "Derick Warner, Billy Karlin, Ed Kurowski & Katie Pelling", "to": "Roper", "subject": "Nominations Are Open for Q2 P&C Star Performer Award!", "ask": "Submit nominations for Q2 P&C Star Performer Award by April 8", "detail": "Nominations are open for the Q2 Property and Casualty Star Performer Award recognizing team members (below VP) who demonstrate excellence in client service, leadership, innovation, etc. One nomination per person per quarter. Reward is a gift card and swag box.", "deadline": "2026-04-08", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19d2634006d6236b", "from_name": "Derick Warner, Billy Karlin, Ed Kurowski & Katie Pelling", "from_role": null}, {"date": "2026-03-24", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: FREE CE - CHUBB & NFP - Elements of Flood Insurance: The NFIP Policy - Registration", "ask": "Register for the free Chubb flood CE webinar", "detail": "Reminder sent directly to PCG team to register for the free Chubb-partnered flood CE webinar. Registration is required for CE credit and spots are capped at 150.", "deadline": null, "category": "training", "fulfilled": "unclear", "message_id": "19d21c9adbdcc180", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-24", "from": "Keith Clemons (NFP Technology)", "to": "Roper", "subject": "Roper DeGarmo - Signature Insurance Day in the Life", "ask": "Join a 'Day in the Life' system review meeting to demonstrate daily workflows and discuss technology usage", "detail": "NFP engineer Keith Clemons scheduled a Day in the Life review covering general workflow, remote working, system environment, M365/Office/Email, printing/scanning, applications, mobile usage, and engineer screenshots. The meeting was booked via Calendly with a Teams link.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19d212bd8d813d67", "from_name": "Keith Clemons", "from_role": "NFP Technology"}, {"date": "2026-03-24", "from": "Jared Solomon (COO, P&C)", "to": "all PCG", "subject": "Time to Register: P&C Town Hall - April 20", "ask": "Register for the P&C Town Hall on April 20 and submit Q2 star performer nominations by April 8 EOD", "detail": "The next P&C Town Hall is scheduled for Monday April 20 at 2:00 PM ET. Additionally, nominations for Q2 star performers are requested, with a deadline of Wednesday April 8 by EOD.", "deadline": "2026-04-08", "category": "operations", "fulfilled": "unclear", "message_id": "19d2107952643e15", "from_name": "Jared Solomon", "from_role": "COO, P&C"}, {"date": "2026-03-24", "from": "Susan Clifford", "to": "Roper (as PR Leader)", "subject": "FW: Aged Receivables - GPE/INC/INOT/PER Profit Center", "ask": "Review the Aged Receivables report with your team and handle items over 30 days past due", "detail": "The current PR/PCG Aged Receivables report is attached. Leaders are to pay special attention to items over 30 days past due, review with their teams, and handle accordingly. Report is generated weekly every Tuesday.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19d210272d0be1b3", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-24", "from": "Susan Clifford", "to": "Roper", "subject": "AI Agent?", "ask": "Explore using AI to aggregate daily data integrity reports into a monthly trend report by Branch and Account Manager", "detail": "Susan receives a daily report and needs to aggregate the data into a monthly report to identify trends by Branch and Account Manager. She is asking Roper if he would like to explore leveraging AI to solve this problem, given his known interest in AI/efficiency.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19d20bc1909644b4", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-24", "from": "Samantha Brown (Carrier Management)", "to": "Roper", "subject": "RE: NFP Carrier Management - Market notifications - Step 2", "ask": "Provide office address, phone, fax, and contact role assignments for contract/appointment transfers to NFP", "detail": "Sam Brown needs the address used for appointments, phone/fax numbers, and who should be listed as primary contact, general correspondence contact, policy document delivery contact, accounting/commission delivery contact, and agency admin. She also needs to confirm staff list (Roper, Crystal Stuart, Tess Presnal). Once received, she will draft the notification for final review.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d20279d4b17f60", "from_name": "Samantha Brown", "from_role": "Carrier Management"}, {"date": "2026-03-24", "from": "Teresa Wharton", "to": "Roper (as PR Leader)", "subject": "Re: Cross Structure Workflow Updates", "ask": "Share cross-structure workflow guidelines with your team -- primary AM is client-facing, secondary AM communicates only with primary AM", "detail": "Teresa reminded leaders that when an account has lines referred to another office, the primary AM/AE handles all client communication. The secondary AM should not communicate directly with the client. Leaders are asked to share this information with their teams.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d20524c3dedb65", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-24", "from": "Amy Ciasulli", "to": "Roper", "subject": "RE: Declined: Technology Update @ Tue Mar 24, 2026 10:30am - 11am (CDT) (Amy Ciasulli)", "ask": "Join a rescheduled Technology Update call next week", "detail": "Amy rescheduled a Technology Update meeting that Brett Woodward wanted Roper on. She sent a new invite for the following week and asked Roper to confirm if the new time works.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19d2064513665abd", "from_name": "Amy Ciasulli", "from_role": null}, {"date": "2026-03-24", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Signature Personal Insurance - Day in the Life Review", "ask": "Schedule the Day in the Life meeting for Friday, include Mary, and request time off in UltiPro for upcoming trip", "detail": "Mary asked Roper to go ahead and schedule the Day in the Life meeting for Friday (include Mary; Brett optional). She also asked him to go into UltiPro and request time off for his upcoming trip. Additionally noted that HR will load 5 goals for Roper's team, and Roper should eventually have goals discussions with Crystal and Tess.", "deadline": "2026-03-27", "category": "integration", "fulfilled": "yes", "message_id": "19d20942fb88bed2", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-24", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Signature Personal Insurance - Day in the Life Review", "ask": "Have goals discussions with Crystal and Tess once HR loads the 5 goals into UltiPro", "detail": "HR will load goals that weren't pre-populated. Once loaded (in a few weeks), Roper should discuss goals with Crystal and Tess. Crystal and Tess will each have office goals supporting KC growth, 93.5% retention goal, and personal goals (e.g. Tess becoming licensed).", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19d20942fb88bed2", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-24", "from": "Mary Mullen", "to": "Roper", "subject": "CanopyConnect/ Roper DeGarmo", "ask": "Set up a meeting with Josh Zacher to discuss CanopyConnect capabilities", "detail": "Mary introduced Roper to Josh Zacher and encouraged them to connect and discuss the CanopyConnect platform's capabilities. Even though the pilot is at capacity, she wants Roper to get familiar with the platform for when it launches more broadly.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19d200092ebb1f94", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-23", "from": "Teresa Wharton", "to": "Roper (as PR Leader)", "subject": "Fw: Cross Structure Workflow Updates", "ask": "Remind team about cross-structure workflow rules and review updated SharePoint documents", "detail": "Leaders reminded that primary AM is client-facing on cross-structure referrals. Updated workflow documents for specialty/cross-structure and yacht are available on SharePoint. Leaders should contact Ops team with questions.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d1c850bf2a0352", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-23", "from": "Julie Lovall", "to": "Roper (as PR Leader)", "subject": "FW: Register Now: Q2 2026 US Epic Refresher Training", "ask": "Push your team to attend Epic refresher courses, especially the new Downloads course", "detail": "Julie asked leaders to encourage their teams to attend Epic refresher training (April 13-24, 2026). She highlighted a new course under the General tab titled 'Downloads (option 1 and 2)' designed to address common download and suspense issues.", "deadline": "2026-04-24", "category": "training", "fulfilled": "unclear", "message_id": "19d1bef5f9f1b1ec", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-23", "from": "Courtney Kendrick (NFP Technology)", "to": "Roper", "subject": "Signature Personal Insurance - Day in the Life Review", "ask": "Schedule a Day in the Life system review meeting via Calendly by March 27", "detail": "NFP Technology is requesting Roper schedule a meeting to document day-to-day technology activities, demonstrate daily workflows from his MacBook, discuss tools/systems, review AI tools in use, and provide feedback on technology challenges. The Calendly link is available through Friday March 27.", "deadline": "2026-03-27", "category": "technology", "fulfilled": "yes", "message_id": "19d1beb6a4cb3278", "from_name": "Courtney Kendrick", "from_role": "NFP Technology"}, {"date": "2026-03-23", "from": "Julie Lovall", "to": "Roper (as PR Leader)", "subject": "Line Rate Clean Up", "ask": "Correct policies in Epic with $0 or $1 in estimated premium/commission fields and confirm when done", "detail": "March list of policies with $0 or $1 in estimated premium field is attached. Estimated premium and estimated commission fields must be corrected as soon as possible. Leaders must confirm when their offices have been updated so Julie can inform corporate.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d1ba0dbfe45617", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-23", "from": "Brad Millican", "to": "team (CC: Roper, Crystal, Tess)", "subject": "Pure Meeting - New System Training", "ask": "Attend the Pure new system training meeting with Anjali Martinez", "detail": "Brad asked the team to join a meeting where Anjali Martinez from PURE Insurance will be going over the new PURE system. Roper, Crystal, and Tess are all CC'd on this meeting invitation.", "deadline": null, "category": "training", "fulfilled": "unclear", "message_id": "19d1b54d4c642b95", "from_name": "Brad Millican", "from_role": null}, {"date": "2026-03-23", "from": "Teresa Wharton", "to": "Roper (as PR Leader)", "subject": "URGENT - MANAGER REPORTS", "ask": "Review and address urgent EPIC reports: Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, Open RXDT, and EPIC Dashboard errors immediately", "detail": "984 SSR errors have effective dates more than 60 days overdue. 4 Unbilled Policies marked urgent. Leaders must address these with their teams immediately for data integrity and SOX compliance. Multiple attached reports need management. Julie, Sue, Bonnie, and Teresa are available for questions.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "19d1b0e687850d8c", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-20", "from": "Mary Mullen", "to": "Roper", "subject": "FW: Update - Collector Auto Re-Classification", "ask": "Ensure your team is aware of the collector auto re-classification change from PCS/PURE", "detail": "Exotic vehicles are being reclassified as High Value Collectibles based on value rather than age. This impacts rating and eligibility including youthful operator exclusion. Conditional renewal notices will be required for impacted policies. State schedules provided.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19d0c9cc9d5b865b", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-19", "from": "Susan Clifford", "to": "all PCG", "subject": "Register Now: Q2 2026 US Epic Refresher Training", "ask": "Register for Q2 2026 Epic Refresher Training (April 13-24) and select PR/PCG as region", "detail": "Team members should register for upcoming Epic Refresher training. General Courses (green) or Personal Risk & PCG (teal) available. Must choose PR/PCG as region when checking out. Registration link and color-coded calendar provided.", "deadline": "2026-04-13", "category": "training", "fulfilled": "unclear", "message_id": "19d070afd299e008", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-19", "from": "Melody Thammavong", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Send a copy of the Travelers policy for the Sankpill account", "detail": "Melody asked Roper to send a copy of the Travelers policy so she can start entering the information while waiting for the BOR to be processed. This is related to the cross-office Sankpill account farm classification challenge.", "deadline": null, "category": "client-work", "fulfilled": "yes", "message_id": "19d06e54232eceac", "from_name": "Melody Thammavong", "from_role": null}, {"date": "2026-03-18", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Confirm you will send the signed BOR to Bryan Kissinger's SBU team once executed", "detail": "Mary is confirming that Roper will send the signed BOR to the team once executed. The family is going through a lot, but with the renewal date looming, she wants everything in motion as soon as possible for Bryan's SBU team.", "deadline": null, "category": "client-work", "fulfilled": "yes", "message_id": "19d02b7fce60b1a5", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-23", "from": "Amy Ciasulli", "to": "Roper", "subject": "Dinner Reservations hosted by Sal Lundy- Catalina Kitch", "ask": "Attend dinner at Catalina Kitchen hosted by Sal Lundy at the Personal Risk Summit", "detail": "Amy made a dinner reservation for the group at Catalina Kitchen, timed for arrival/check-in. The reservation is in EST and will convert to PST upon arrival at Terranea.", "deadline": "2026-04-13", "category": "operations", "fulfilled": "unclear", "message_id": "19d1b986e4118b12", "from_name": "Amy Ciasulli", "from_role": null}, {"date": "2026-03-18", "from": "Logan Christianson", "to": "Roper", "subject": "Vendor List and Information Accumulation", "ask": "Review vendor list from QuickBooks and identify which vendors should continue to be paid through Coupa", "detail": "Logan pulled a QuickBooks report of all SPI transactions by vendor (12/1/2025 - 3/13/2026) and summarized them. Roper needs to go through the list, mark which vendors will continue receiving business-related payments, remove individual expense vendors, and add any missing vendors. Next step after that is collecting W-9 and ACH info for Coupa setup.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d027ca7f24afb2", "from_name": "Logan Christianson", "from_role": null}, {"date": "2026-03-18", "from": "Logan Christianson", "to": "Roper", "subject": "Vendor List and Information Accumulation", "ask": "Confirm whether team is already using Concur for individual expense reimbursement", "detail": "Logan noted that individual-related expenses (T&E, continuing ed, etc.) should be reimbursed through Concur. He asked Roper to let him know if the team is not yet using Concur so training can be arranged.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19d027ca7f24afb2", "from_name": "Logan Christianson", "from_role": null}, {"date": "2026-03-18", "from": "Amy Ciasulli", "to": "all PCG", "subject": "Early Arrival- Summit", "ask": "Respond whether you will join the group dinner on April 13th at the Summit", "detail": "Amy is organizing group dinners for early arrivals at the Summit on Monday April 13th at Terranea. She asked everyone to reply with their plans at earliest convenience so she can make restaurant reservations.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19d019d17aadb9e8", "from_name": "Amy Ciasulli", "from_role": null}, {"date": "2026-03-18", "from": "Courtney Kendrick", "to": "Roper", "subject": "Signature Personal Insurance - Day in the Life Review", "ask": "Schedule a 'Day in the Life' technology review meeting via Calendly link", "detail": "NFP Technology team wants to document Roper's day-to-day workflows, applications, data storage, and tech usage from his MacBook. The meeting involves screen sharing to demonstrate daily workflows, discussing tools used at various frequencies, reviewing AI tools, and gathering feedback on tech challenges. Scheduling through March 20th with additional dates available.", "deadline": "2026-03-20", "category": "technology", "fulfilled": "unclear", "message_id": "19d01485f843832b", "from_name": "Courtney Kendrick", "from_role": "NFP Technology"}, {"date": "2026-03-17", "from": "Jacqueline Searles", "to": "Roper", "subject": "RE: HR Open items", "ask": "Notify Jackie when AmEx cards arrive so Concur email can be launched", "detail": "AmEx cards have been ordered (7-10 day turnaround). Once Roper receives his card, he needs to notify Jackie so they can trigger the Concur onboarding email for expense management.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cfda1f7ccabd11", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-03-17", "from": "Susan Clifford", "to": "all PCG", "subject": "FW: Aged Receivables - GPE/INC/INOT/PER Profit Center", "ask": "Review aged receivables report and handle items over 30 days past due", "detail": "Susan forwarded the current PR/PCG Aged Receivables report and asked all leaders to pay special attention to items over 30 days past due, review with their teams, and handle accordingly.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19cfcfcf750adec3", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-17", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Cancel the old phone carrier account for 913-904-1881 to stop billing", "detail": "The port of 913-904-1881 to RingCentral is complete. Rachel asked Roper to contact the old carrier (Google Voice) and cancel the account so he doesn't continue receiving bills for a service that's no longer active.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cfc744a42ee541", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-17", "from": "Rachel Burroughs", "to": "Roper, Tess, Crystal", "subject": "Attention: Welcome to the New RingCentral System", "ask": "Activate RingCentral accounts using the activation email", "detail": "RingCentral is live for the main line 913-904-1881. All calls will go to voicemail until each person activates their account. They need to use the activation email or go to MyApplications and click the RingCentral tile if the link has expired.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cfc718aa7cfb50", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-17", "from": "Melody Thammavong", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Get the attached BOR signed by the Sankpill insured", "detail": "Melody sent the BOR (Broker of Record) letter for the Sankpill account with NFP P&C agency code 1907351. The insured needs to sign it. This is related to the Travelers farm policy renewal with a 03/31 deadline.", "deadline": "2026-03-31", "category": "client-work", "fulfilled": "unclear", "message_id": "19cfc5b729170491", "from_name": "Melody Thammavong", "from_role": null}, {"date": "2026-03-17", "from": "Lisa Lamb", "to": "Roper", "subject": "RE: Signature Insurance - Individual Book", "ask": "Answer questions about individual life book servicing needs, operational details, and carrier statements", "detail": "Lisa sent detailed questions about the individual life book: servicing needs, how clients are tracked, what info is needed going forward, whether new sales are expected, number of policies in force, carrier statement frequency, and whether statements are commingled with personal lines.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19cfc038124b9cd8", "from_name": "Lisa Lamb", "from_role": null}, {"date": "2026-03-16", "from": "Lisa Lamb", "to": "Roper", "subject": "RE: Signature Insurance - Individual Book", "ask": "Confirm if Thursday's individual life book call works for your schedule", "detail": "Lisa asked Roper to confirm whether the Thursday call about the individual life book works, or suggest an alternative time. This call was later cancelled after Roper provided answers by email.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19cf8989d3e8eb87", "from_name": "Lisa Lamb", "from_role": null}, {"date": "2026-03-16", "from": "Lisa Lamb", "to": "Roper, Crystal", "subject": "Signature Insurance - Individual Book", "ask": "Clarify whether individual book policies are life or medical", "detail": "Lisa noticed from the integration call that roughly 10% of SPI's book is categorized as individual. She asked Roper and Crystal to confirm whether these are individual life policies or individual medical policies to ensure the right focus for Thursday's discussion.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19cf8870759bac5c", "from_name": "Lisa Lamb", "from_role": null}, {"date": "2026-03-16", "from": "Bonnie Storch", "to": "all PCG", "subject": "PCG Annual Review ADC", "ask": "Update PCG Annual Review ADC for clients added in last 90 days and confirm when done", "detail": "Bonnie attached a report by branch/AM of PCG clients added in the last 90 days who lack a PCG Annual Review ADC. Teams need to update each client with the appropriate month, optional, or Pathway designation, then confirm to Bonnie when the office has been updated.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cf77ecdc9de3aa", "from_name": "Bonnie Storch", "from_role": null}, {"date": "2026-03-16", "from": "Teresa Wharton", "to": "all PCG", "subject": "URGENT - MANAGER REPORTS", "ask": "Address Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, and Open RXDT reports immediately", "detail": "Teresa sent urgent manager reports including Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, and Open RXDT. Items more than 60 days over follow-up date are highlighted as priority. There are 951 SSRs with effective dates more than 60 days ago that need immediate attention. Any coverage issues must be escalated ASAP.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cf74e22e5b65ac", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-16", "from": "Brad Millican", "to": "Roper, Tess, Crystal", "subject": "RE: FW: Berkley One/Chubb User IDs", "ask": "Provide title and national producer number for Chubb and Berkley One access setup", "detail": "Brad needs each team member's title and NPN (national producer number) to set up user IDs for Chubb and Berkley One carrier access. This was later resolved -- Crystal NPN 7323511, Roper NPN 4903465, Tess has no NPN yet.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19cf73ac9210113b", "from_name": "Brad Millican", "from_role": null}, {"date": "2026-03-16", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Cancel the HelloFax/Dropbox fax service and choose call routing preference for main line", "detail": "Rachel confirmed the fax number (913-416-9392) is not needed and reminded Roper to cancel HelloFax to avoid ongoing charges. She also asked Roper to decide between two call routing options: (1) emergency calls route directly to Roper, or (2) all calls go to voicemail with email notifications to all three team members.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19cf712a995248e0", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-16", "from": "Nicole Juracek", "to": "Roper", "subject": "Re: HR Open items", "ask": "Log into Schwab workplace and complete 401(k) enrollment with investment percentage and beneficiary", "detail": "Nicole noted that Roper may not have chosen a 401(k) investment percentage yet. She directed him to log into workplace.schwab.com, scroll down to see the 3 enrollment options, and complete enrollment including beneficiary designation.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cf6ddee9351bdc", "from_name": "Nicole Juracek", "from_role": null}, {"date": "2026-03-16", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Goals Meetings (UltiPro)", "ask": "Enter SMART goals in UltiPro under Myself/Goals for the 5 pre-loaded categories", "detail": "Mary explained how to find goals in UltiPro (Myself > Goals). Five categories are pre-loaded and editable (except Conduct). Roper needs to go into each category and add bullets/SMART goals. Central Region targets: PCG retention 93.5%, PR retention 90%, Central ALL growth 5.3%.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "19cf6d228014974f", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-16", "from": "Jacqueline Searles", "to": "Roper", "subject": "Re: HR Open items", "ask": "Confirm AmEx card delivery preference: office or individual home addresses", "detail": "Jackie confirmed AmEx cards will be ordered for Roper, Crystal, and Tess. She asked Roper whether he wants the cards sent to the office address for distribution, or directly to each person's home.", "deadline": null, "category": "HR/benefits", "fulfilled": "yes", "message_id": "19cf6ba3e3fddb8e", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-03-13", "from": "Jacqueline Searles", "to": "Roper", "subject": "HR Open items", "ask": "Complete benefits enrollment, 401(k) enrollment, handbook acknowledgement, and request AmEx cards by deadlines", "detail": "Jackie listed all open HR items with priorities: Benefits Enrollment (due 03/21), 401(k) enrollment (any time), AmEx cards (due 03/30), Handbook Acknowledgement (due 03/30), Concur rollout (after AmEx delivery), and Compliance Training (60 days from distribution after Ninjio). Weekly meetings cancelled, moving to monthly.", "deadline": "2026-03-30", "category": "HR/benefits", "fulfilled": "yes", "message_id": "19ce8ed56af2c83d", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}, {"date": "2026-03-17", "from": "Abigail Swider", "to": "Roper, Crystal", "subject": "Signature Insurance - Individual Life Book", "ask": "Provide alternative meeting times if the scheduled call does not work", "detail": "Abigail noted she does not have access to Roper and Crystal's calendars yet and asked them to provide a few other times if the scheduled meeting for the individual life book discussion does not work. This meeting was later cancelled.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19cfc494e40070ed", "from_name": "Abigail Swider", "from_role": null}, {"date": "2026-03-16", "from": "Bryan Kissinger", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Place personal liability coverage separately for Sankpill since Travelers is renewing with an exclusion", "detail": "Bryan confirmed that Travelers will renew the Sankpill farm policy with an exclusion on Personal Liability. Roper needs to place that line of coverage (primary personal premises liability for 16565 Kenneth Rd, Stilwell KS, and personal umbrella/excess) separately. Melody Thammavong will assist with the BOR and service.", "deadline": "2026-03-31", "category": "client-work", "fulfilled": "unclear", "message_id": "19cf7e7ae90f57d1", "from_name": "Bryan Kissinger", "from_role": null}, {"date": "2026-03-13", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Identify the carrier for fax number 913-416-9392 so it can be ported to RingCentral", "detail": "Rachel noticed a fax number (9134169392) in Signature's current call flow and wants to know who the fax is currently with, so they can look into porting it over to RingCentral as well.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19ce8a4019c1aa28", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-13", "from": "NFP Employee Benefits", "to": "Roper", "subject": "REMINDER: NFP Employee Benefits: Enrollment Runs through Tuesday, March 21 - Signature Personal Insurance", "ask": "Enroll in NFP benefits before the enrollment deadline", "detail": "Benefits enrollment for the Signature team is open and must be completed by March 21, 2026. Must actively enroll via UltiPro PeopleFirst Portal. Failure to enroll means no coverage until next annual enrollment period.", "deadline": "2026-03-21", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19ce8baf1c93692a", "from_name": "NFP Employee Benefits", "from_role": null}, {"date": "2026-03-13", "from": "Rachel Burroughs", "to": "team", "subject": "Attention: Get the Most from the Upcoming RingCentral Migration", "ask": "Activate RingCentral accounts and install desktop/mobile apps before March 17 migration", "detail": "The Signature phone system moves to RingCentral on March 17 between 11:00-1:00pm ET. Roper, Crystal, and Tess each need to activate their RingCentral accounts via email link, install the desktop and/or mobile app, and optionally sign up for instructor-led training.", "deadline": "2026-03-17", "category": "technology", "fulfilled": "unclear", "message_id": "19ce88b3a5efd838", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-13", "from": "Abigail Swider", "to": "Roper, Crystal", "subject": "Signature Insurance - Individual Medical Book", "ask": "Provide available meeting times to discuss individual medical book transition", "detail": "Abigail doesn't have access to their calendars and is requesting alternative time slots to meet about how individual medical/benefit lines will transact on the Benefits platform and be entered into Agency Bloc for servicing, since Epic doesn't support benefit lines.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19ce8595a1181e56", "from_name": "Abigail Swider", "from_role": null}, {"date": "2026-03-13", "from": "Mary Bamford", "to": "Roper", "subject": "RE: Pre-acquisition payroll", "ask": "Provide QuickBooks access to verify 2/17 beginning balances", "detail": "Mary Bamford from West Region Accounting still needs access to QuickBooks to verify February 17 beginning balances as part of the post-acquisition accounting close process.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19ce845e20bb8541", "from_name": "Mary Bamford", "from_role": null}, {"date": "2026-03-13", "from": "Bryan Kissinger", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Obtain Broker of Record (BOR) letter for Sankpill account so NFP SBU team can handle servicing", "detail": "Bryan Kissinger's Select Business Unit team in Central Region offered to handle the Sankpill farm/equine account service, but Roper needs to obtain the BOR first before they can take it on.", "deadline": null, "category": "client-work", "fulfilled": "unclear", "message_id": "19ce842fcf530d93", "from_name": "Bryan Kissinger", "from_role": null}, {"date": "2026-03-13", "from": "Tracy McClain", "to": "Roper", "subject": "Re: Email Security and credentials", "ask": "Implement email security items and provide full admin access to domain registrar (Tucows)", "detail": "Tracy is checking whether Roper implemented the email security changes or wants her to do them. She also needs full admin access (not just delegate) to the Tucows domain registrar for NFP's engineers to complete security configurations.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19ce764991913bd5", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-03-12", "from": "Mary Mullen", "to": "Roper", "subject": "Signature Personal Insurance - Bi-Weekly Integration Review", "ask": "Notify Mary of anything important from the Friday integration review meeting", "detail": "Mary won't be on the Friday bi-weekly integration call and asks Roper and Julie Lovall to let her know if there's anything important she needs to know before the meeting notes are sent.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19ce416c79d48fcc", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-12", "from": "Mary Mullen", "to": "Roper", "subject": "RE: Sankpill Account -- Farm Classification Challenge + Full Account Review", "ask": "Provide context on discussions with the MGA regarding Sankpill farm classification", "detail": "Mary is pulling Roper into the Sankpill discussion thread with Bryan Kissinger and Cody Tyler. She's asking Roper to shed light on what he's discussed with the MGA about the farm classification challenge with Travelers.", "deadline": null, "category": "client-work", "fulfilled": "unclear", "message_id": "19ce3f2b2787c1cb", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-12", "from": "Mary Mullen", "to": "Roper", "subject": "FW: Berkley One February Leaderboard", "ask": "Decide whether to get a separate Berkley One code or partner with Chicago team to test", "detail": "Mary asks Roper if he wants her to introduce him to the B1 (Berkley One) team and pursue a separate producer code for his team, or if he'd prefer to partner with the Chicago team to test the carrier first under their existing code.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19ce3e9b04f61d29", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-12", "from": "Samantha Brown", "to": "Roper", "subject": "NFP Carrier Management - Market notifications", "ask": "Review and approve the draft carrier announcement email before it is sent to markets", "detail": "NFP Carrier Management is approaching the 30-day post-close mark and needs to send announcement emails to Signature's carrier markets alerting them of the acquisition. Sam attached a draft announcement for Roper's review and approval before sending.", "deadline": null, "category": "integration", "fulfilled": "yes", "message_id": "19ce2ce610cfbff2", "from_name": "Samantha Brown", "from_role": "Carrier Management"}, {"date": "2026-03-12", "from": "Rachel Burroughs", "to": "Tess", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Confirm the correct port-out PIN for the 913-904-1881 number", "detail": "The port request for 913-904-1881 was rejected because the transfer/port-out PIN (4084687700) was incorrect. Rachel is asking Tess to confirm the correct PIN so the RingCentral port can proceed.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19ce2dd596d05f71", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-12", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Provide an invoice for the Google Voice number to support the port request", "detail": "The initial port was rejected and Rachel needs an invoice showing the account number, transfer number, service address, company name, and owner for the 913-904-1881 number. She asks whether this is a paid or free Google Voice number.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cde76fdeb69350", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-12", "from": "Mary Mullen", "to": "team", "subject": "RE: REV 20260226 NFP PCG EU Training_Sigmature FOLLOW UP", "ask": "Target Epic go-live on/around April 8 and prepare for monthly pipeline calls starting April 2", "detail": "Post-Chicago training follow-up: Roper joins weekly Thursday central leader calls. The whole Signature team is added to a monthly pipeline call (first one 4/2, to be rescheduled). Epic go-live target is on/around 4/8. Mary will discuss with Roper and Brad about adding the team to the standing Chicago Wednesday 9am meeting.", "deadline": "2026-04-08", "category": "integration", "fulfilled": "unclear", "message_id": "19ce3100ed64841e", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-12", "from": "Teresa Wharton", "to": "all PCG", "subject": "URGENT - MANAGER REPORTS", "ask": "Address all missed and expiring-not-renewed policies through March 15 before end of business today", "detail": "Teresa sent urgent attached reports showing policies on the Missed Expiration and Expiring NOT Renewed reports. All expirations through March 15 must be addressed before EOD. Leaders are responsible for reassigning work for any out-of-office account managers. Must confirm when addressed.", "deadline": "2026-03-12", "category": "operations", "fulfilled": "unclear", "message_id": "19ce31a31084d25c", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-12", "from": "Mary Mullen", "to": "Roper", "subject": "FW: Confirmation: Trip - Kansas City, 03/23/2026 - 03/24/2026", "ask": "Prepare goals, referral sources, largest client rundown, and day-to-day discussion for KC in-person meeting", "detail": "Mary is coming to KC on March 23-24. She asks Roper to brainstorm and jot down tangible 2026 goals before their meeting. In KC they'll tackle: goals, referral sources/introductions, largest client rundown, and day-to-day operations. A UltiPro demo will happen the week before virtually.", "deadline": "2026-03-23", "category": "operations", "fulfilled": "unclear", "message_id": "19ce76dc6a685e79", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-12", "from": "Susan Clifford", "to": "all PCG", "subject": "FW: Aged Receivables - GPE/INC/INOT/PER Profit Center", "ask": "Review aged receivables report and address items over 30 days past due with your team", "detail": "Susan Clifford forwarded the current PR/PCG Aged Receivables report to all leaders. She specifically asks leaders to pay attention to items over 30 days past due, review with their teams, and handle accordingly.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19cda4915c28c306", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-11", "from": "Rachel Burroughs", "to": "Tess", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Schedule a 30-minute call on Friday 3/13 to review routing for 913-904-1881", "detail": "Rachel asks Tess for a 30-minute time slot on Friday March 13 to review the call routing setup for the main office number (913-904-1881) before the RingCentral migration.", "deadline": "2026-03-13", "category": "technology", "fulfilled": "yes", "message_id": "19cde6bf7a152e81", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-11", "from": "Tracy McClain", "to": "Roper", "subject": "Re: Email Security and credentials", "ask": "Enforce MFA and implement Google Workspace security changes per the integration playbook", "detail": "Tracy says MFA enforcement is the first priority. She attached the Integration Playbook V3 for Google Workspace with all required security setting changes. She offers to make the changes herself if Roper prefers, but needs to know how he wants to proceed.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cdd2f1c35ecb14", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-03-11", "from": "Tracy McClain", "to": "Tess", "subject": "Re: Email Security and credentials", "ask": "Introduce NFP to the Umzuzu team for security-related coordination", "detail": "Tracy now has Google Workspace admin access and asks Tess to introduce the NFP integration team to Umzuzu (Signature's Google Workspace managed service provider) so they can cover security-related items.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cdce00cdd8ded1", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-03-11", "from": "Jane Harlow", "to": "team", "subject": "Epic Line of Business & Activity Codes", "ask": "Review Epic line of business codes and activity codes reference documents", "detail": "Jane sent two reference documents (Epic Line of Business Codes/Production Codes/Policy Types spreadsheet and Activity Codes PDF) for the Signature team to review and use as they prepare for Epic go-live.", "deadline": null, "category": "training", "fulfilled": "unclear", "message_id": "19cdd90416a56331", "from_name": "Jane Harlow", "from_role": null}, {"date": "2026-03-11", "from": "Mary Mullen", "to": "team", "subject": "pre renewal SAMPLE EM", "ask": "Review sample pre-renewal email template for adoption", "detail": "Mary sent a sample pre-renewal client communication email for the Signature team to review. This serves as a template for how NFP handles pre-renewal outreach to clients, establishing the expected communication standard.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cde3ea20072128", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-11", "from": "Mary Mullen", "to": "team", "subject": "FW: PRSC Templates", "ask": "Learn and use PRSC request templates and the PRSC Atlantic email address for service center requests", "detail": "Mary forwarded the Personal Risk Service Center (PRSC) request templates for auto changes, general changes, inland/valuable articles, mortgage/EOI, and cancellation requests. The team should use these templates when submitting service requests to prsc.atlantic@nfp.com.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cdd3e788244761", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-11", "from": "Mary Mullen", "to": "team", "subject": "FW: Agency Billing Procedure", "ask": "Review and follow agency billing request procedures", "detail": "Mary forwarded the Agency Billing Request Procedures document (PDF) from Renee Gallagher to the entire Signature team for their reference and adoption.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cde6806d47a122", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-10", "from": "Haley Heath (P&C Application Support)", "to": "Roper", "subject": "Epic Login Instructions - Roper DeGarmo", "ask": "Log into Epic, save the login page to favorites, and review the New User Welcome Kit before working in Epic", "detail": "Epic credentials have been created (Enterprise ID: NFPPR01). Roper needs to log in via Microsoft Edge at https://nfppr01.appliedepic.com, save the login page, and review the New User Welcome Kit on SharePoint. Also expects an Applied University activation email.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cd7d50079319ce", "from_name": "Haley Heath", "from_role": "P&C Application Support"}, {"date": "2026-03-09", "from": "Amy Ciasulli", "to": "Roper", "subject": "Return Flights from Summit", "ask": "Send departure flight info out of LAX on April 16 to Carey Mills ASAP", "detail": "NFP needs departure flight time from LAX on Thursday April 16 for shuttle planning from Terranea Resort. Flights should depart 1:30PM or later since the final session ends at 10:30AM.", "deadline": "ASAP", "category": "operations", "fulfilled": "yes", "message_id": "19cd34f3a8fc998e", "from_name": "Amy Ciasulli", "from_role": null}, {"date": "2026-03-09", "from": "Stephen Moriyama", "to": "team", "subject": "Signature Team Access | CPC (Cloud PC)", "ask": "Download Windows App, log into Cloud PC with NFP credentials, and confirm it is working", "detail": "Cloud PCs have been created for the Signature team. They need to download the Windows App from the Mac App Store, connect to their Cloud PC, and confirm to Stephen that it works.", "deadline": null, "category": "technology", "fulfilled": "partial", "message_id": "19cd4b2a5dd9d0bd", "from_name": "Stephen Moriyama", "from_role": null}, {"date": "2026-03-09", "from": "Julie Lovall", "to": "Roper", "subject": "Cloud PC", "ask": "Confirm whether anyone from technology has reached out regarding access", "detail": "Julie is checking in to see if Roper has been contacted by the technology team about Cloud PC / system access. This was sent shortly before Stephen Moriyama's Cloud PC email.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19cd459f08883860", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-09", "from": "Susan Clifford", "to": "all PCG leaders (including Roper)", "subject": "URGENT - MANAGER REPORTS", "ask": "Review and resolve Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, Open RXDT reports and unbilled policies immediately", "detail": "Attached reports show critical errors: missed expirations, unissued SSRs going back 12+ months, 5 unbilled policies, and RXDT issues. Leaders must run and monitor these reports regularly, resolve all items, and confirm when addressed. Unissued SSRs affect coverage integrity.", "deadline": "immediately", "category": "operations", "fulfilled": "unclear", "message_id": "19cd358ac904f0df", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-09", "from": "Mary Mullen", "to": "Roper", "subject": "Goals Meetings (UltiPro)", "ask": "Think about and populate 2026 goals in UltiPro before scheduled goals meetings next week", "detail": "Central Region goals shared: PCG client retention 93.5%, Personal Risk retention 90%, Central PR ALL growth goal 0.2%. Roper should prepare goal ideas in UltiPro before the scheduled meeting. Mary notes she will discuss further at leader meeting this week.", "deadline": "before goals meetings next week", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cd34c37c7831b6", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-09", "from": "Mary Mullen", "to": "Roper", "subject": "Discuss 2026 Goals (UltiPro) - Roper", "ask": "Join Teams meeting to discuss 2026 goals", "detail": "Teams meeting invite to discuss Roper's 2026 UltiPro goals with Mary Mullen. Meeting details and dial-in provided.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cd30a0f2ae09ba", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-09", "from": "Tracy McClain", "to": "Roper", "subject": "Re: Email Security and credentials", "ask": "Provide Google Workspace admin credentials and facilitate introduction with Umzuzu team", "detail": "Tracy is following up (third request) for Google Workspace Global Admin credentials and domain registrar (Tucows) admin access. Also needs introduction to Umzuzu, the Google Workspace reseller. Original request from Feb 18 included MFA, geofencing, conditional access policies, unified audit logging requirements.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cd3099f37dd029", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-03-09", "from": "Mary Mullen", "to": "Roper", "subject": "Dinner in KC 3/23", "ask": "Join NFP commercial team dinner on March 23 in Kansas City", "detail": "Amanda Ruback (Managing Director, Central Region P&C) and other commercial NFP colleagues are visiting KC and want Roper to join for dinner March 23. Katie Altstadt is coordinating scheduling.", "deadline": null, "category": "marketing", "fulfilled": "yes", "message_id": "19cd2fd471f5b3bc", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-03-09", "from": "Brad Millican", "to": "Roper", "subject": "RE: Bloch ~ Quote Full Account ~ AZ Primary + NJ Secondary + Auto + Umbrella", "ask": "Take over Chubb underwriting communication with Kate Conneely for the Bloch account", "detail": "Brad has submitted Chubb quotes for the Bloch prospect (AZ Home+Auto, NJ Secondary, Excess Liability) and is handing the account to Roper and Kate Conneely to finalize. NJ home closing by 4/1, so if Chubb can't write it, it needs to go to Custom for review.", "deadline": "2026-04-01", "category": "client-work", "fulfilled": "unclear", "message_id": "19cd2c7ccbbf2861", "from_name": "Brad Millican", "from_role": null}, {"date": "2026-03-06", "from": "Kellie Green", "to": "Roper, Crystal", "subject": "Payroll Contract Termination Notice", "ask": "Provide email address for 'Ruben Brown' or forward the payroll contract termination document to them", "detail": "Kellie needs to send the payroll contract termination notice to the accounting contact (she mistakenly thought RubinBrown was a person). Roper clarified and looped in Jenny De Cicco from RubinBrown LLP.", "deadline": "at earliest convenience", "category": "integration", "fulfilled": "yes", "message_id": "19cc4784e382b492", "from_name": "Kellie Green", "from_role": null}, {"date": "2026-03-06", "from": "Katie Altstadt", "to": "Crystal, Tess, Roper", "subject": "NFP Office Access Instructions 3/10", "ask": "Confirm receipt of QR code email from blub0x.com for Chicago office building access on 3/10", "detail": "Instructions for accessing NFP Chicago office at 500 W. Madison St, 32nd Floor. Team should have received a QR code email from noreply@blub0x.com. If not received, need to let Katie know. Check spam/junk folder.", "deadline": "2026-03-10", "category": "operations", "fulfilled": "unclear", "message_id": "19cc461cdeecf601", "from_name": "Katie Altstadt", "from_role": null}, {"date": "2026-03-06", "from": "Teresa Wharton", "to": "all PCG leaders (including Roper via Mary's forward)", "subject": "FW: Past Due Activities", "ask": "Ensure teams update all Epic Activities by close of business Friday March 27", "detail": "Activities should not be closed or rescheduled without notes from the AM. Leaders should review EPIC Home Page configuration to include 'Last Updated By' and 'Last Updated Date' columns and sort by priority. Focus on expanding PRSC services through better activity prioritization.", "deadline": "2026-03-27", "category": "operations", "fulfilled": "unclear", "message_id": "19cc3822b47a10b0", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-05", "from": "Rachel Burroughs", "to": "Tess", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Provide Google Voice porting information (invoice, account number, service address, authorized contact, PIN) for number 913-904-1881", "detail": "Rachel is following up on porting 913-904-1881 from Google Voice to RingCentral. Tess needs to obtain from Umzuzu: Google Voice invoice, account number, service address, authorized contact name, and porting PIN.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19cbfc3ba95b358f", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-05", "from": "Courtney Kendrick", "to": "Crystal, Roper, Tess", "subject": "Signature Personal Insurance - Day in the Life Review", "ask": "Schedule a 'Day in the Life' system review using the Calendly link by March 20", "detail": "NFP technology team needs each team member to schedule a screen-sharing session to document daily workflows, tools, systems, data storage, and AI tools in use. Sessions are for understanding technology workflow before integration.", "deadline": "2026-03-20", "category": "technology", "fulfilled": "unclear", "message_id": "19cbf31f2baa3223", "from_name": "Courtney Kendrick", "from_role": "NFP Technology"}, {"date": "2026-03-05", "from": "Riana Sherwood", "to": "Roper", "subject": "RE: NFP Integration: Signature Personal Insurance", "ask": "Provide update on when the E&O tail/ERP endorsement from Swiss Re will be received", "detail": "Riana is following up on the Extended Reporting Period (ERP) endorsement for Swiss Re policy WED4KS006866319, a 6-year tail purchased for $15,233 via KAIA. Barb Wise at KAIA is issuing the Cancellation and ERP Endorsement.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "19cbf2df2bba0460", "from_name": "Riana Sherwood", "from_role": null}, {"date": "2026-03-05", "from": "Courtney Kendrick", "to": "Roper, Tess", "subject": "NFP Milestone Review with Signature Insurance 03.03.26", "ask": "Complete four action items: notify of contract terminations/renewals, consolidate unused Google accounts, provide admin access to Tracy McClain and John Seckner, complete Ninjio training", "detail": "Meeting follow-up with documented action items. Roper discussed reviewing CoPilot as AI tool replacement, will speak with Brett and Mary on long-term AI direction. Currently consolidating unused Google Workspace accounts into shared admin account before granting admin access.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19cbf2b49382dd13", "from_name": "Courtney Kendrick", "from_role": "NFP Technology"}, {"date": "2026-03-05", "from": "Lisa Black", "to": "Roper, Crystal", "subject": "RE: Licenses", "ask": "Keep SPI agency licenses active until all business written under them has expired; complete RegEd background questions when welcome email arrives", "detail": "Lisa recommends keeping state agency licenses active as long as policies are in force under them. NFP handles individual licenses via RegEd vendor. Roper and Crystal will receive a RegEd welcome email to complete background questions. NFP does NOT handle agency licenses or agency cybersecurity filing since this was an asset purchase.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "19cbe44ae4a845fb", "from_name": "Lisa Black", "from_role": null}, {"date": "2026-03-04", "from": "Teresa Wharton", "to": "all PCG leaders (including Roper)", "subject": "Fw: PURE, MetLife, & Hagerty - EPIC Policy Entry", "ask": "Share carrier-specific EPIC policy entry instructions with your team to reduce download suspense errors", "detail": "Download items entering suspense due to incorrect coding. PURE Programs must use PALEX1 with Premium Payable set to BR and PUREPRO-01. Hagerty policies must update Premium Payable to BR with Hagerty PPE. Carrier Download Nuances spreadsheet added to SharePoint.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cb9ffa9a8e460b", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-04", "from": "Lisa Black", "to": "Roper, Crystal", "subject": "Licenses", "ask": "Let Lisa know when ready for NFP/RegEd to handle license renewals", "detail": "NFP partners with RegEd for licensing. When Roper and Crystal are ready to transition, Lisa will set up profiles. RegEd handles renewals 30-45 days before expiration and contacts directly if anything is needed.", "deadline": null, "category": "compliance", "fulfilled": "unclear", "message_id": "19cb99b52cac9324", "from_name": "Lisa Black", "from_role": null}, {"date": "2026-03-04", "from": "Nicole Juracek", "to": "Roper, Crystal, Tess", "subject": "IMPORTANT EMPLOYEE BENEFIT NEWS - NFP 401(k) PLAN", "ask": "Review 401(k) enrollment materials and register/enroll at workplace.schwab.com", "detail": "Signature team is immediately eligible for NFP Corp. 401(k) Plan with service credit from original hire date. Options include traditional pre-tax and Roth after-tax, with NFP 50% match on up to 6% of pay. Catch-up contributions available for 50+.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cb9841c5c69b15", "from_name": "Nicole Juracek", "from_role": null}, {"date": "2026-03-04", "from": "Andria Griffin (NFP Employee Benefits)", "to": "Roper, Crystal", "subject": "RE: ACTION REQUIRED: NFP Employee Benefits: Enrollment Starts Today and Runs through Tuesday, March 10 - Signature Personal Insurance", "ask": "Complete benefits enrollment by the extended deadline of March 21", "detail": "Deadline extended to 3/21 for Roper and Crystal. If enrolled after 3/11, elections won't be in 3/20 payroll; missed deductions for 3/6 and 3/20 will be trued up on 4/6 pay. Must actively enroll to participate.", "deadline": "2026-03-21", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cb97a8e392ab2c", "from_name": "Andria Griffin", "from_role": "NFP Employee Benefits"}, {"date": "2026-03-04", "from": "NFP Employee Benefits", "to": "Roper, Crystal, Tess", "subject": "ACTION REQUIRED: NFP Employee Benefits: Enrollment Starts Today and Runs through Tuesday, March 10 - Signature Personal Insurance", "ask": "Enroll in NFP benefits via UltiPro PeopleFirst Portal by March 10", "detail": "Benefits enrollment opened with coverage effective March 1, 2026. Must actively enroll via UltiPro PeopleFirst Portal or by calling 877.637.0637. If no election is made, cannot enroll until next annual enrollment period.", "deadline": "2026-03-10", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cb958ec0ae1b60", "from_name": "NFP Employee Benefits", "from_role": null}, {"date": "2026-03-04", "from": "Jason Smith", "to": "Roper (via distribution)", "subject": "Invite to acquire Copilot license and join the Microsoft Copilot Team", "ask": "Sign consent form to acquire Copilot license and provide ongoing feedback", "detail": "Roper is invited to join NFP's Microsoft Copilot team. Must sign the consent form to get license provisioned (up to 24 hours). Copilot works on Windows 11 and Mac. License retention requires completing periodic feedback requests.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19cb945864792149", "from_name": "Jason Smith", "from_role": null}, {"date": "2026-03-03", "from": "Susan Clifford", "to": "all PCG leaders (including Roper)", "subject": "FW: Aged Receivables - GPE/INC/INOT/PER Profit Center", "ask": "Review the Aged Receivables report with your team, pay special attention to items over 30 days past due, and handle accordingly", "detail": "Current PR/PCG Aged Receivables report attached. Leaders must review items over 30 days past due with their teams and resolve. Report is generated weekly from Epic every Tuesday at 2PM EST.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19cb52c78a894f23", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-09", "from": "NFP (HR)", "to": "Roper (as people leader)", "subject": "Join the LinkedIn Learning Goal Setting Challenge Today!", "ask": "Document 2026 goals in PeopleFirst portal by March 31", "detail": "Goals assigned via PeopleFirst portal on February 9 and must be documented in the system by March 31. Includes Conduct Goal and 2026 Performance Management Framework. Training recording available via AcadaMe.", "deadline": "2026-03-31", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cd4253c306b310", "from_name": "NFP", "from_role": "HR"}, {"date": "2026-03-03", "from": "Julie Lovall", "to": "all PR Leaders (includes Roper)", "subject": "YTD Lost Business", "ask": "Review lost business reports for accuracy and update Epic if any coding issues are identified", "detail": "Julie attached Epic lost business reports for PCG and PR. Leaders need to review line-level lost business numbers for accuracy and correct any coding issues (e.g., cancel/rewrite, proper flat cancel). PCG branches show $10.7M YTD lost business.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19cb4bd1c5d41d52", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-03", "from": "Teresa Wharton", "to": "all PR Leaders (includes Roper)", "subject": "Past Due Activities", "ask": "Ensure teams update all overdue Activities in Epic by end of business March 27th", "detail": "Teresa sent overdue activities reports (30+ days). Activities should not be closed or rescheduled without AM notes. Leaders should also review employees' Epic Home Page configuration to add 'Last Updated By' and 'Last Updated Date' columns.", "deadline": "2026-03-27", "category": "operations", "fulfilled": "unclear", "message_id": "19cb4b0b0e4177ec", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-03", "from": "Susan Clifford", "to": "all PR Leaders (includes Roper)", "subject": "FW: Monoline Update", "ask": "Have teams review and release PersonalUmbrella.com Monoline SimpleSwitch quotes assigned to Account Managers", "detail": "207 quotes currently require agency review. The initiative to move policies off PersonalUmbrella.com started April 2025 with 859 policies; 604 remain. Policies should not be renewing as-is with PersonalUmbrella.com. Leaders should revisit importance with teams.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cb47f0d0a53a63", "from_name": "Susan Clifford", "from_role": null}, {"date": "2026-03-03", "from": "Julie Lovall", "to": "all PR Leaders (includes Roper)", "subject": "PCG ANRV May 2026", "ask": "Remind teams to add ADC for all new clients and review ANRV Agency Defined Category when reviewing/rewriting coverage", "detail": "Julie attached PCG Annual Review report for May sorted by branch and AM. The ANRV activity has been added to client files. Teams need to ensure the appropriate month is selected in the ANRV Agency Defined Category.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19cb43bd7be7c839", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-03", "from": "Nancy Cronin", "to": "team (Crystal, Roper, Tess)", "subject": "NFP Systems Training Today at 12:30 CST", "ask": "Respond to the Teams meeting invitation for systems training and attend the session", "detail": "Nancy sent a Teams invitation for systems training at 12:30 CST / 1:30 EST. She asked them to accept the meeting request or let her know if the timing doesn't work.", "deadline": "2026-03-03", "category": "training", "fulfilled": "yes", "message_id": "19cb41b1ec08af54", "from_name": "Nancy Cronin", "from_role": null}, {"date": "2026-03-03", "from": "Nancy Cronin", "to": "team (Crystal, Roper, Tess)", "subject": "RE: NFP Systems Training Today at 12:30 CST", "ask": "Accept the Teams meeting request that was sent earlier", "detail": "Crystal confirmed the meeting but Nancy followed up asking if they can formally accept the meeting invitation she sent that morning via Teams.", "deadline": "2026-03-03", "category": "training", "fulfilled": "unclear", "message_id": "19cb431a3da4c2ca", "from_name": "Nancy Cronin", "from_role": null}, {"date": "2026-03-02", "from": "Christopher Shanks", "to": "Roper", "subject": "RE: FW: Review Needed: NFP Association Audit", "ask": "Provide a warm introduction to Mark at NAPFA/Caliber KC", "detail": "Chris Shanks asked Roper for a warm introduction to Mark from NAPFA. Chris briefly met Mark at a conference in Puerto Rico but believes an intro from Roper would mean a lot to build the relationship.", "deadline": null, "category": "marketing", "fulfilled": "unclear", "message_id": "19cb0ab179239f91", "from_name": "Christopher Shanks", "from_role": null}, {"date": "2026-03-02", "from": "Mary Bamford", "to": "Roper", "subject": "Feb Month end close deadline 3/3", "ask": "Provide February bank statement/reconciliation, commission statements, and February payroll by noon March 3rd", "detail": "NFP has a 2-day close deadline. Mary needs the Feb bank statement and reconciliation, commission statements related to Feb deposits, and Feb payroll so she can upload February financials. She has QuickBooks access once bank rec and entries are complete.", "deadline": "2026-03-03T12:00:00", "category": "reporting", "fulfilled": "partial", "message_id": "19cb05ce69b5f9c7", "from_name": "Mary Bamford", "from_role": null}, {"date": "2026-03-02", "from": "Andria Griffin", "to": "team (Crystal, Roper)", "subject": "RE: NFP Benefits Enrollment Guide & Rate Sheet", "ask": "Complete benefits enrollment within the expedited enrollment window (by 3/10/26) or request a benefits meeting if preferred", "detail": "NFP waived the standard waiting period for the acquisition. An enrollment email with instructions and plan document links was sent. If they prefer a live benefits meeting, they should let HR know and the enrollment window can be adjusted.", "deadline": "2026-03-10", "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19cafd66f22737ab", "from_name": "Andria Griffin", "from_role": "NFP Employee Benefits"}, {"date": "2026-03-02", "from": "Brad Millican", "to": "Roper (and team)", "subject": "RE: Bloch ~ Quote Full Account ~ AZ Primary + NJ Secondary + Auto + Umbrella", "ask": "Once Chubb quotes are complete, take the lead on contacting Kate Conneely at Chubb for review", "detail": "Brad asked Nhi Nguyen to quote Bloch in Chubb out of Kansas City. Once quotes are done, Roper or his team should contact Chubb underwriter Kate Conneely to review the quotes.", "deadline": null, "category": "client-work", "fulfilled": "unclear", "message_id": "19cafcc98845741b", "from_name": "Brad Millican", "from_role": null}, {"date": "2026-03-02", "from": "Teresa Wharton", "to": "all PR Leaders (includes Roper)", "subject": "URGENT - MANAGER REPORTS", "ask": "Review and resolve Missed Expirations, Policies Renewed but Not Submitted, SSR Not Issued, and Open RXDT reports immediately", "detail": "Teresa flagged urgent reports including 3 unbilled policies and SSRs with entered/effective dates going back 12+ months. Items 60+ days past follow-up are highlighted. Leaders must confirm when addressed. Everyone should pull and review their own reports to monitor.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19caf733d92cc690", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-02", "from": "Teresa Wharton", "to": "all PR Leaders (includes Roper)", "subject": "URGENT - MANAGER REPORTS", "ask": "Confirm when the urgent report items have been addressed", "detail": "Teresa explicitly asked leaders to 'Confirm when these have been addressed' after reviewing the Missed Expirations, unissued SSRs, RXDT, and Policies Renewed but Not Submitted reports.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19caf733d92cc690", "from_name": "Teresa Wharton", "from_role": null}, {"date": "2026-03-02", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Provide Google Voice porting details: invoice, account number, service address, authorized contact name, and porting PIN", "detail": "To port 913-904-1881 from Google Voice to RingCentral, Rachel needs the Google Voice invoice, account number, service address on file, authorized contact name, and porting PIN. She also wants to schedule a meeting to discuss call routing options.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19caf0a120bd2f2b", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-02", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Schedule a meeting to discuss call routing for the main office line", "detail": "Rachel wants to set up a time to discuss routing options for the 913-904-1881 main line: either route calls directly to all three team members, or set up a customized voicemail/IVR menu.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19caf0a120bd2f2b", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-03-02", "from": "Stephen Moriyama", "to": "team (Crystal, Roper)", "subject": "RE: Stephen Moriyama shared the folder \"26 02 Lyons Training\" with you", "ask": "Confirm access to the Lyons Training SharePoint folder using NFP credentials", "detail": "Stephen shared the Lyons Training folder on SharePoint and asked Crystal and Roper to confirm they can access it with their NFP credentials. There had been access issues due to an email typo.", "deadline": null, "category": "training", "fulfilled": "yes", "message_id": "19caf09c637dda14", "from_name": "Stephen Moriyama", "from_role": null}, {"date": "2026-03-02", "from": "Tracy McClain", "to": "Roper", "subject": "Re: Email Security and credentials", "ask": "Provide progress update on email security settings and share admin credentials for Google Workspace and domain registrar", "detail": "Tracy is checking in on progress with email security settings (MFA, geofencing, conditional access policies, unified audit logging) originally requested Feb 18. She also needs the Google Workspace Global Admin account credentials and Tucows domain registrar account credentials.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19caf06787202a05", "from_name": "Tracy McClain", "from_role": "NFP Technology"}, {"date": "2026-03-02", "from": "Brandon Jackson", "to": "Roper", "subject": "Re: Make the Most of MyApps, the PeopleFirst Portal and Viva Engage", "ask": "Try logging into MyApps again after 2FA fix and report if it works", "detail": "Brandon resolved the 2FA block on Roper's MyApps login and asked him to try again and confirm whether it lets him in.", "deadline": null, "category": "technology", "fulfilled": "yes", "message_id": "19caef7ece794ba2", "from_name": "Brandon Jackson", "from_role": "NFP Technology"}, {"date": "2026-03-02", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: PCG 2075 ORCHID UNDERWRIT AGY1180 $1,468.80 02-10-2026 353203", "ask": "Claim the Orchid Underwriters commission and match client in Epic", "detail": "The AOC is attempting to post a $1,468.80 commission from Orchid Underwriters but the client is not found in Epic. Julie asked PCG All to claim and match the policy.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19caf1b8e2948caf", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-02", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: Your Travel Insurance Plan", "ask": "Claim and enter TME Travel Insurance client/policy into Epic", "detail": "Julie forwarded two TME Travel Insurance confirmations (Policy #500004405 and #500004406) asking PCG to claim and enter the clients and policies into Epic.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19caef8e0a62009c", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-02", "from": "Julie Lovall", "to": "all PCG", "subject": "FW: Your Travel Insurance Plan", "ask": "Claim and enter TME Travel Insurance client/policy into Epic (second policy)", "detail": "Second TME Travel Insurance confirmation (Policy #500004406) forwarded to PCG All for claiming and entering into Epic.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19caef829cc0c5c3", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-03-02", "from": "Rachel Burroughs", "to": "Roper", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Confirm whether Google Voice number has an invoice and account number for porting", "detail": "Rachel asked if the Google Voice number (913-904-1881) is a paid number with an invoice and account number, to proceed with the RingCentral port request.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19caeb3bf64ad2a4", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-02-27", "from": "Mary Mullen", "to": "Roper, Crystal, Tess", "subject": "EPIC Training Recording", "ask": "Complete EPIC training recordings before Chicago trip and be able to log into a client", "detail": "Julie provided access to EPIC training recordings. Mary asks the team to go through them on their own time next week. They should come to Chicago feeling confident they can log into a client as a starting place for in-person training.", "deadline": "before Chicago in-person training (early March 2026)", "category": "training", "fulfilled": "unclear", "message_id": "19ca0e8e3ee7040f", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-27", "from": "Andria Griffin", "to": "Roper, Crystal", "subject": "NFP Benefits Enrollment Guide & Rate Sheet", "ask": "Review the benefits enrollment guide and rate sheet", "detail": "HR sent the enrollment guide and rate sheet for NFP benefits. Roper and Crystal need to review and reach out with any questions. This is part of benefits onboarding.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19ca0e7c88c72b8f", "from_name": "Andria Griffin", "from_role": "NFP Employee Benefits"}, {"date": "2026-02-27", "from": "Brandon Jackson", "to": "Roper", "subject": "Re: Make the Most of MyApps, the PeopleFirst Portal and Viva Engage", "ask": "Try the corrected MyApps password and confirm if it works", "detail": "Brandon provided a corrected password (NFPSIGNATURE122965205) after Roper's initial login attempt failed. Roper needs to try it and report back.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19ca0e2f417c833d", "from_name": "Brandon Jackson", "from_role": "NFP Technology"}, {"date": "2026-02-27", "from": "Logan Christianson", "to": "Roper", "subject": "Life Commissions", "ask": "Provide details on life insurance revenue \u2014 whether it's recurring and if new business is expected", "detail": "Logan is finalizing Roper's 2026 variable incentive comp plan. He sees ~$50K life insurance revenue in 2025 P&L with monthly payments of $5,575.50 through September then nothing. Needs to know if any is recurring and whether Roper expects new life business.", "deadline": null, "category": "reporting", "fulfilled": "unclear", "message_id": "19ca0d3028e8f654", "from_name": "Logan Christianson", "from_role": null}, {"date": "2026-02-27", "from": "Kim Pillar", "to": "Roper, Crystal, Tess", "subject": "I-9 Verification Information", "ask": "Complete DocuSign I-9 paperwork including ID upload for UltiPro onboarding", "detail": "Paige Jankowski will send a DocuSign for I-9 verification. Team members need to complete paperwork and upload their IDs via the provided link. This is required for UltiPro payroll onboarding.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19ca01bf0d8911f4", "from_name": "Kim Pillar", "from_role": null}, {"date": "2026-02-27", "from": "Mary Mullen", "to": "Roper", "subject": "FW: Review Needed: NFP Association Audit", "ask": "Connect with Christopher Shanks about NAPFA relationship and make intro to KC Caliber firm", "detail": "Mary forwarded Brett Woodward's request to connect Roper with Christopher Shanks who leads NFP's NAPFA relationship. Roper should connect with Shanks and potentially make a warm intro to Caliber Financial Partners in Overland Park, KS.", "deadline": null, "category": "marketing", "fulfilled": "unclear", "message_id": "19c9fe910e76bef1", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-27", "from": "NFP HR (humanresources@nfp.com)", "to": "Roper", "subject": "Make the Most of MyApps, the PeopleFirst Portal and Viva Engage", "ask": "Set up NFP MyApps account, PeopleFirst Portal, and Viva Engage with MFA", "detail": "Automated onboarding email instructing Roper to log in to myapps.microsoft.com with NFP credentials, set up multi-factor authentication, and access PeopleFirst Portal for HR info and Viva Engage for internal communications.", "deadline": null, "category": "technology", "fulfilled": "partial", "message_id": "19c9f9fc3c5979f6", "from_name": "NFP HR", "from_role": "humanresources@nfp.com"}, {"date": "2026-02-27", "from": "Stephanie Goldman", "to": "Roper", "subject": "HR Integration", "ask": "Forward the HR meeting invite to Tess and Crystal, and hold onto NFP login credentials until the meeting", "detail": "Stephanie notified Roper that NFP login credentials would arrive that morning. She asked him to hold onto them until the afternoon HR meeting and to forward the meeting invite to Tess and Crystal. The meeting covers next steps on HR systems, payroll, and benefits.", "deadline": "2026-02-27 (afternoon meeting)", "category": "HR/benefits", "fulfilled": "yes", "message_id": "19c9f5845dd9b32a", "from_name": "Stephanie Goldman", "from_role": "NFP HR"}, {"date": "2026-02-26", "from": "Brad Millican", "to": "Roper", "subject": "RE: Bloch ~ Quote Full Account ~ AZ Primary + NJ Secondary + Auto + Umbrella", "ask": "Re-quote Bloch account under NFP Chubb code 64195 and get approval from Kate or Caleb Bone", "detail": "Brad instructed Roper to have the Bloch prospect quoted under NFP's Chubb producer code 64195 and then get approval from Kate Conneely. If Kate can't approve, she'll refer to Caleb Bone in Custom.", "deadline": null, "category": "client-work", "fulfilled": "unclear", "message_id": "19c9bed71af3434f", "from_name": "Brad Millican", "from_role": null}, {"date": "2026-02-26", "from": "Mary Mullen", "to": "Roper", "subject": "EPIC Opps", "ask": "Provide a new business premium goal (annualized) for EPIC opportunities setup", "detail": "Mary is setting up EPIC opportunities as a TEAM for KC1/Signature (similar to Plainview). She forgot to ask Roper for his new business premium goal (annualized) and needs him to weigh in.", "deadline": null, "category": "operations", "fulfilled": "unclear", "message_id": "19c9bdf88d92bec0", "from_name": "Mary Mullen", "from_role": "NFP Central Region"}, {"date": "2026-02-25", "from": "Rachel Burroughs", "to": "Roper, Tess", "subject": "RE: Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Confirm whether to proceed with porting 913-904-1881 and clarify status of other two mobile lines", "detail": "Rachel confirmed they can port the office number 913-904-1881 to RingCentral first before making Verizon changes. She needs to know if the other two mobile lines will be kept as-is, and how Roper wants to proceed.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19c96eb4d235b224", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-02-25", "from": "Rachel Burroughs", "to": "Roper, Tess", "subject": "Signature Insurance - Migration to NFP Phone system hosted by RingCentral", "ask": "Confirm whether team will use current mobile phones or want corporate phone numbers", "detail": "After the introductory meeting, Rachel needs to know if the team will continue using their current mobile phones or if they want corporate phone numbers assigned through RingCentral.", "deadline": null, "category": "technology", "fulfilled": "partial", "message_id": "19c964264dfcb7ee", "from_name": "Rachel Burroughs", "from_role": null}, {"date": "2026-02-25", "from": "Julie Lovall", "to": "Roper", "subject": "RE: Signature Policy Import - Expired policies.xlsx", "ask": "Review list of expired policies and update effective dates or indicate which don't need importing", "detail": "Julie sent a spreadsheet of expired policies from the data import. Roper needs to update effective dates for current policies or mark which ones don't need to be imported. First round of data is in test environment but these need to be resolved to avoid manual entry.", "deadline": null, "category": "operations", "fulfilled": "yes", "message_id": "19c95fa8003773ff", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-25", "from": "Amy Ciasulli", "to": "Roper", "subject": "CAPI Project for Sue -", "ask": "Provide 30 minutes to discuss Sue Clifford's CAPI project idea (app-based product)", "detail": "Amy Ciasulli asked Roper for 30 minutes of his time to discuss Sue Clifford's CAPI project idea for an app-based product. Sue is in the Chubb CAPI program and Amy thinks Roper would have beneficial insight.", "deadline": null, "category": "operations", "fulfilled": "yes", "message_id": "19c95970370888a2", "from_name": "Amy Ciasulli", "from_role": null}, {"date": "2026-02-25", "from": "Julie Lovall", "to": "Roper", "subject": "Shared Folder", "ask": "Provide a shared folder for Stephen Moriyama to drop EPIC training recording files", "detail": "Julie needs Roper to set up a shared folder that Stephen can access to share EPIC training recordings. NFP only has SharePoint and Roper can't access that yet, so they need an alternative.", "deadline": null, "category": "technology", "fulfilled": "unclear", "message_id": "19c957fec30031f4", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-24", "from": "Riana Sherwood", "to": "Roper, Crystal, Tess", "subject": "NFP Integration: Signature Personal Insurance", "ask": "Provide copy of the 6-year E&O Tail/ERP with effective date of 2/18/2026", "detail": "Riana from NFP Risk Management requested a copy of the Tail/ERP endorsement for the E&O policy (Swiss Re, policy #WED4KS006866319). The 6-year ERP must have an effective date of 2/18/2026.", "deadline": null, "category": "compliance", "fulfilled": "yes", "message_id": "19c916de9ae317fd", "from_name": "Riana Sherwood", "from_role": null}, {"date": "2026-02-24", "from": "Courtney Kendrick", "to": "Roper, Tess", "subject": "NFP Milestone Review with Signature Insurance", "ask": "Schedule a 30-minute NFP Milestone Review meeting via Calendly link", "detail": "After the technology intro call, Courtney asked Roper and Tess to schedule a 30-minute milestone review meeting using a Calendly link. The meeting will cover NFP integration milestones, roster verification, and Q&A.", "deadline": null, "category": "integration", "fulfilled": "unclear", "message_id": "19c914574814847f", "from_name": "Courtney Kendrick", "from_role": "NFP Technology"}, {"date": "2026-02-24", "from": "Brandon Jackson", "to": "Roper, Tess", "subject": "Tech Intro Call", "ask": "Confirm the Tech Intro call is still on for today", "detail": "Brandon checked to confirm that Roper and Tess were still available for the scheduled Technology Introduction call.", "deadline": "2026-02-24", "category": "technology", "fulfilled": "yes", "message_id": "19c91086d3e24f53", "from_name": "Brandon Jackson", "from_role": "NFP Technology"}, {"date": "2026-02-23", "from": "Christopher Sam", "to": "Roper", "subject": "Re: E&O Tail / ERP -- Post-Close, Ready to Bind", "ask": "Bind the 6-year ERP, pay premium, and provide evidence of binding plus endorsement copy", "detail": "Christopher Sam instructed Roper to proceed with binding the 6-year ERP through KAIA. Roper must pay the premium, provide evidence of binding to Chris and Ryan Mediate, and later provide a copy of the endorsement once issued.", "deadline": null, "category": "compliance", "fulfilled": "yes", "message_id": "19c8b04d0537ec54", "from_name": "Christopher Sam", "from_role": "NFP Risk Management"}, {"date": "2026-02-23", "from": "Stephen Moriyama", "to": "Roper", "subject": "Stephen Moriyama shared the folder \"26 02 Lyons Training\" with you", "ask": "Confirm access to the shared EPIC training recordings folder on SharePoint", "detail": "Stephen shared a SharePoint folder containing 3 EPIC training recordings from another firm (Lyons). He asked Roper to confirm he can access it. This was part of the EPIC training preparation.", "deadline": null, "category": "training", "fulfilled": "yes", "message_id": "19c8c0bef3926456", "from_name": "Stephen Moriyama", "from_role": null}, {"date": "2026-02-23", "from": "Julie Lovall", "to": "Roper", "subject": "RE: Policy Import", "ask": "Provide writing company info for non-Assurant policies and check if SharePoint training link works", "detail": "Julie needed writing company information for 3 non-Assurant policies (Heule/Stoffer, Parks, Wiebe). She also asked Roper to check if he could access a SharePoint link for the Lyons PCG training recording.", "deadline": null, "category": "operations", "fulfilled": "yes", "message_id": "19c8b6b6f6e0ef3d", "from_name": "Julie Lovall", "from_role": "NFP Operations"}, {"date": "2026-02-22", "from": "Jacqueline Searles", "to": "Tess", "subject": "RE: RE: Signature Employee Tracker", "ask": "Provide Tess Presnal's Social Security Number to complete payroll setup", "detail": "Jackie confirmed all employee data is set except Tess's SSN is missing from her documents. She sent Tess a separate email requesting it. Once received, they can send everything to payroll.", "deadline": null, "category": "HR/benefits", "fulfilled": "unclear", "message_id": "19c875f60c83fc1d", "from_name": "Jacqueline Searles", "from_role": "NFP HR"}];
+
+// ===== CATEGORY COLORS =====
+const CAT_COLORS = {
+  'integration': '#58a6ff',
+  'operations': '#d29922',
+  'compliance': '#f85149',
+  'HR/benefits': '#a371f7',
+  'training': '#3fb950',
+  'reporting': '#79c0ff',
+  'client-work': '#ffa657',
+  'technology': '#ee77a7',
+  'marketing': '#bb8009'
+};
+
+const CAT_ORDER = ['technology', 'operations', 'HR/benefits', 'integration', 'training', 'client-work', 'compliance', 'reporting', 'marketing'];
+
+// ===== ROLE MAP =====
+const ROLE_MAP = {
+  'Mary Mullen': 'Central Region Leadership',
+  'Julie Lovall': 'Operations / Epic Conversion',
+  'Rachel Burroughs': 'Operations / Epic Conversion',
+  'Teresa Wharton': 'Operations / Reporting',
+  'Susan Clifford': 'Operations / Policy Processing',
+  'Jacqueline Searles': 'Human Resources',
+  'Tracy McClain': 'Technology / IT Security',
+  'Brandon Jackson': 'Technology Integration',
+  'Amy Ciasulli': 'PCG National Leadership',
+  'Courtney Kendrick': 'Technology / Workstation Setup',
+  'Brad Millican': 'Operations / Epic',
+  'Keara Connelly': 'M&A Integration Management',
+  'Stephanie Goldman': 'Human Resources / HRIS',
+  'Mary Bamford': 'Operations / Carrier Relations',
+  'John Seckner': 'Technology / Telephony',
+  'Samantha Brown': 'Carrier Management',
+  'Logan Christianson': 'Marketing',
+  'Lisa Lamb': 'Operations / Surplus Lines',
+  'Stephen Moriyama': 'Technology / Epic',
+  'Andria Griffin': 'Employee Benefits',
+  'Christopher Sam': 'Risk Management / E&O',
+  'Melody Thammavong': 'Operations',
+  'Nicole Juracek': 'Operations / Reporting',
+  'Abigail Swider': 'Technology',
+  'Bryan Kissinger': 'Operations / Carrier Codes',
+  'NFP Employee Benefits': 'Employee Benefits',
+  'Riana Sherwood': 'Operations / Policy Processing',
+  'Lisa Black': 'Operations',
+  'Nancy Cronin': 'Operations / Client Service',
+  'Marco Altamirano': 'M&A Integration',
+  'Eugene Likhterman': 'Treasury / Accounting',
+  'Cassandra Stutz': 'Accounting',
+  'Katherine Minami': 'Operations',
+  'NFP P&C Operating Platform Program': 'Program Management',
+  'Keith Clemons': 'Technology',
+  'Jared Solomon': 'COO, P&C',
+  'Bonnie Storch': 'Operations',
+  'Jane Harlow': 'Operations / Compliance',
+  'Haley Heath': 'P&C Application Support',
+  'Kellie Green': 'Operations',
+  'Katie Altstadt': 'Operations',
+  'Jason Smith': 'Operations / Carrier Setup',
+  'NFP HR': 'Human Resources',
+  'Christopher Shanks': 'Operations',
+  'Kim Pillar': 'Operations / Client Service',
+  'NFP (HR)': 'Human Resources',
+  'Derick Warner, Billy Karlin, Ed Kurowski & Katie Pelling': 'Tech & AI Leadership'
+};
+
+// ===== COMPUTE STATS =====
+const total = DATA.length;
+const fulfilled = DATA.filter(d => d.fulfilled === 'yes').length;
+const partial = DATA.filter(d => d.fulfilled === 'partial').length;
+const unclear = DATA.filter(d => d.fulfilled === 'unclear' || d.fulfilled === 'no').length;
+const pctFulfilled = Math.round((fulfilled / total) * 100);
+const pctUnclear = Math.round((unclear / total) * 100);
+
+// Unique senders (normalized)
+const senderSet = new Set();
+DATA.forEach(d => senderSet.add(d.from_name || d.from));
+const uniqueSenders = senderSet.size;
+
+// Weeks count
+const dates = DATA.map(d => d.date).filter(Boolean).sort();
+const firstDate = new Date(dates[0]);
+const lastDate = new Date(dates[dates.length - 1]);
+const weekSpan = Math.ceil((lastDate - firstDate) / (7 * 24 * 60 * 60 * 1000)) + 1;
+const perWeek = (total / weekSpan).toFixed(1);
+
+// Business days (approx 30 days * 5/7)
+const daySpan = Math.ceil((lastDate - firstDate) / (24 * 60 * 60 * 1000)) + 1;
+const bizDays = Math.round(daySpan * 5 / 7);
+const perDay = (total / bizDays).toFixed(1);
+
+// Update text
+document.getElementById('total-asks-text').textContent = total;
+document.getElementById('sender-count-text').textContent = uniqueSenders;
+document.getElementById('daily-rate-text').textContent = perDay;
+
+// ===== STATS ROW =====
+const statsRow = document.getElementById('stats-row');
+statsRow.innerHTML = `
+  <div class="stat-card highlight">
+    <div class="stat-value">${total}</div>
+    <div class="stat-label">Total Asks</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">${pctFulfilled}%</div>
+    <div class="stat-label">Fulfilled (${fulfilled})</div>
+  </div>
+  <div class="stat-card yellow">
+    <div class="stat-value">${pctUnclear}%</div>
+    <div class="stat-label">Unclear / Open (${unclear})</div>
+  </div>
+  <div class="stat-card blue">
+    <div class="stat-value">${perDay}</div>
+    <div class="stat-label">Asks per Biz Day</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">${uniqueSenders}</div>
+    <div class="stat-label">NFP Senders</div>
+  </div>
+`;
+
+// ===== TIMELINE CHART =====
+function getWeekStart(dateStr) {
+  const d = new Date(dateStr);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff)).toISOString().split('T')[0];
+}
+
+const weekData = {};
+DATA.forEach(d => {
+  if (!d.date) return;
+  const week = getWeekStart(d.date);
+  if (!weekData[week]) weekData[week] = {};
+  const cat = d.category || 'unknown';
+  weekData[week][cat] = (weekData[week][cat] || 0) + 1;
+});
+
+const weeks = Object.keys(weekData).sort();
+const maxWeekTotal = Math.max(...weeks.map(w => Object.values(weekData[w]).reduce((a, b) => a + b, 0)));
+
+let timelineHTML = '<div class="legend">';
+CAT_ORDER.forEach(cat => {
+  timelineHTML += `<div class="legend-item"><div class="legend-swatch" style="background:${CAT_COLORS[cat]}"></div>${cat}</div>`;
+});
+timelineHTML += '</div>';
+
+weeks.forEach(w => {
+  const weekTotal = Object.values(weekData[w]).reduce((a, b) => a + b, 0);
+  const pct = (weekTotal / maxWeekTotal) * 100;
+  const weekLabel = new Date(w + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  
+  timelineHTML += `<div class="bar-group">
+    <div class="bar-label"><span>Week of ${weekLabel}</span><span class="count">${weekTotal} asks</span></div>
+    <div class="bar-track">`;
+  
+  CAT_ORDER.forEach(cat => {
+    const count = weekData[w][cat] || 0;
+    if (count > 0) {
+      const segPct = (count / maxWeekTotal) * 100;
+      timelineHTML += `<div class="timeline-bar-segment" style="width:${segPct}%;background:${CAT_COLORS[cat]}" title="${cat}: ${count}"></div>`;
+    }
+  });
+  
+  timelineHTML += `</div></div>`;
+});
+
+document.getElementById('timeline-chart').innerHTML = timelineHTML;
+
+// ===== CATEGORY CHART =====
+const catCounts = {};
+CAT_ORDER.forEach(c => catCounts[c] = 0);
+DATA.forEach(d => {
+  const c = d.category || 'unknown';
+  catCounts[c] = (catCounts[c] || 0) + 1;
+});
+
+const sortedCats = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+const maxCat = sortedCats[0][1];
+
+let catHTML = '';
+sortedCats.forEach(([cat, count]) => {
+  const pct = (count / maxCat) * 100;
+  catHTML += `<div class="bar-group">
+    <div class="bar-label"><span>${cat}</span><span class="count">${count}</span></div>
+    <div class="bar-track">
+      <div class="bar-fill" style="width:${pct}%;background:${CAT_COLORS[cat] || '#484f58'}"></div>
+    </div>
+  </div>`;
+});
+document.getElementById('category-chart').innerHTML = catHTML;
+
+// ===== STATUS BY CATEGORY CHART =====
+const catStatus = {};
+DATA.forEach(d => {
+  const c = d.category || 'unknown';
+  if (!catStatus[c]) catStatus[c] = { yes: 0, partial: 0, unclear: 0 };
+  const s = d.fulfilled === 'yes' ? 'yes' : d.fulfilled === 'partial' ? 'partial' : 'unclear';
+  catStatus[c][s]++;
+});
+
+let statusHTML = '';
+sortedCats.forEach(([cat]) => {
+  const s = catStatus[cat] || { yes: 0, partial: 0, unclear: 0 };
+  const catTotal = s.yes + s.partial + s.unclear;
+  
+  statusHTML += `<div class="bar-group">
+    <div class="bar-label"><span>${cat}</span><span class="count">${s.yes}/${catTotal} fulfilled</span></div>
+    <div class="bar-track">
+      <div class="bar-fill fulfilled" style="width:${(s.yes / maxCat) * 100}%"></div>
+      <div class="bar-fill partial" style="width:${(s.partial / maxCat) * 100}%"></div>
+      <div class="bar-fill unclear" style="width:${(s.unclear / maxCat) * 100}%"></div>
+    </div>
+  </div>`;
+});
+document.getElementById('status-chart').innerHTML = statusHTML;
+
+// ===== SENDER TABLE =====
+const senderData = {};
+DATA.forEach(d => {
+  const name = d.from_name || d.from;
+  if (!senderData[name]) senderData[name] = { count: 0, role: '' };
+  senderData[name].count++;
+  if (d.from_role && !senderData[name].role) senderData[name].role = d.from_role;
+});
+
+const sortedSenders = Object.entries(senderData).sort((a, b) => b[1].count - a[1].count);
+const maxSenderCount = sortedSenders[0][1].count;
+
+const senderTbody = document.querySelector('#sender-table tbody');
+sortedSenders.forEach(([name, info], idx) => {
+  const role = ROLE_MAP[name] || info.role || '--';
+  const barPct = (info.count / maxSenderCount) * 100;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="rank">${idx + 1}</td>
+    <td class="sender-name">${name}</td>
+    <td class="sender-role">${role}</td>
+    <td class="count-cell">${info.count}</td>
+    <td><div class="mini-bar"><div class="mini-bar-fill" style="width:${barPct}%"></div></div></td>
+  `;
+  senderTbody.appendChild(tr);
+});
+
+// ===== CATEGORY FILTER DROPDOWN =====
+const catSelect = document.getElementById('filter-category');
+CAT_ORDER.forEach(cat => {
+  const opt = document.createElement('option');
+  opt.value = cat;
+  opt.textContent = cat;
+  catSelect.appendChild(opt);
+});
+
+// ===== FULL ASK TABLE =====
+let currentSort = { field: 'date', dir: 'desc' };
+
+function catBadgeClass(cat) {
+  return 'cat-' + (cat || 'unknown').replace(/\//g, '-').replace(/\s/g, '-').toLowerCase();
+}
+
+function renderAskTable() {
+  const catFilter = document.getElementById('filter-category').value;
+  const statusFilter = document.getElementById('filter-status').value;
+  const searchFilter = document.getElementById('filter-search').value.toLowerCase();
+
+  let filtered = DATA.filter(d => {
+    if (catFilter && d.category !== catFilter) return false;
+    if (statusFilter) {
+      if (statusFilter === 'unclear' && d.fulfilled !== 'unclear' && d.fulfilled !== 'no') return false;
+      if (statusFilter === 'yes' && d.fulfilled !== 'yes') return false;
+      if (statusFilter === 'partial' && d.fulfilled !== 'partial') return false;
+    }
+    if (searchFilter) {
+      const haystack = (d.ask + ' ' + d.from + ' ' + d.subject + ' ' + d.to + ' ' + (d.detail || '')).toLowerCase();
+      if (!haystack.includes(searchFilter)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    let va = a[currentSort.field] || '';
+    let vb = b[currentSort.field] || '';
+    if (currentSort.field === 'date' || currentSort.field === 'deadline') {
+      va = va || '9999-99-99';
+      vb = vb || '9999-99-99';
+    }
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return currentSort.dir === 'asc' ? -1 : 1;
+    if (va > vb) return currentSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  document.getElementById('result-count').textContent = `Showing ${filtered.length} of ${DATA.length} asks`;
+
+  const tbody = document.querySelector('#ask-table tbody');
+  tbody.innerHTML = '';
+
+  filtered.forEach(d => {
+    const tr = document.createElement('tr');
+    const statusClass = d.fulfilled === 'yes' ? 'status-yes' : d.fulfilled === 'partial' ? 'status-partial' : 'status-unclear';
+    const statusLabel = d.fulfilled === 'yes' ? 'Fulfilled' : d.fulfilled === 'partial' ? 'Partial' : 'Open';
+    const catClass = catBadgeClass(d.category);
+    const deadlineStr = d.deadline ? new Date(d.deadline + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '--';
+    const dateStr = d.date ? new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '--';
+
+    tr.innerHTML = `
+      <td class="date-cell">${dateStr}</td>
+      <td class="from-cell">${d.from_name || d.from}</td>
+      <td class="to-cell">${d.to || '--'}</td>
+      <td class="ask-cell">${d.ask}${d.detail ? '<div class="detail-tooltip">' + d.detail.replace(/</g, '&lt;') + '</div>' : ''}</td>
+      <td class="cat-cell"><span class="cat-badge ${catClass}">${d.category}</span></td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td class="deadline-cell">${deadlineStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Sort headers
+document.querySelectorAll('#ask-table th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const field = th.dataset.sort;
+    if (currentSort.field === field) {
+      currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSort.field = field;
+      currentSort.dir = field === 'date' ? 'desc' : 'asc';
+    }
+    // Update arrows
+    document.querySelectorAll('#ask-table th .sort-arrow').forEach(s => s.textContent = '');
+    th.querySelector('.sort-arrow').textContent = currentSort.dir === 'asc' ? ' \u25B2' : ' \u25BC';
+    renderAskTable();
+  });
+});
+
+// Filters
+document.getElementById('filter-category').addEventListener('change', renderAskTable);
+document.getElementById('filter-status').addEventListener('change', renderAskTable);
+document.getElementById('filter-search').addEventListener('input', renderAskTable);
+
+renderAskTable();
+
+// Set initial sort arrow
+document.querySelector('#ask-table th[data-sort="date"] .sort-arrow').textContent = ' \u25BC';
+
+// ===== OPEN ITEMS =====
+const openItems = DATA.filter(d => d.fulfilled === 'unclear' || d.fulfilled === 'no')
+  .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+const openList = document.getElementById('open-items');
+openItems.forEach(d => {
+  const dateStr = d.date ? new Date(d.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '--';
+  const deadlineStr = d.deadline ? new Date(d.deadline + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+  const catClass = catBadgeClass(d.category);
+
+  const li = document.createElement('li');
+  li.className = 'open-item';
+  li.innerHTML = `
+    <div class="item-header">
+      <div class="item-ask">${d.ask}</div>
+      <span class="cat-badge ${catClass}" style="margin-left:12px;flex-shrink:0">${d.category}</span>
+    </div>
+    <div class="item-meta">
+      <span>From: ${d.from_name || d.from}</span>
+      <span>To: ${d.to || '--'}</span>
+      <span>Date: ${dateStr}</span>
+      ${deadlineStr ? '<span style="color:#f85149">Deadline: ' + deadlineStr + '</span>' : ''}
+    </div>
+    ${d.detail ? '<div class="item-detail">' + d.detail.replace(/</g, '&lt;') + '</div>' : ''}
+  `;
+  openList.appendChild(li);
+});
+
+</script>
+</body>
+</html>
