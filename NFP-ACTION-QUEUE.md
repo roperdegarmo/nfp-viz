@@ -62,9 +62,9 @@ Last reviewed: 2026-04-05
 ## OPEN — Ranked
 
 1. **Send ranked list to Keara** — Update her Smartsheet export with our status + this ranked list. Roper's updates in a distinct color
-2. **Tess licensing + full-time conversation with Brett** — Tess pursuing MA P&C license (NFP reimburses). Have conversation with Brett about bringing her on full time ASAP
-3. **Disable @SignatureAdvisor forwarding** — Stop forwarding to @nfp.com, cleanup
-4. **Landmark bank reconciliation** — Mary Bamford needs Roper to undo the 2/17/26 reconciliation in QuickBooks (Chart of Accounts > Reconcile > Account 1003 > History by Account > Undo) so she can do full March close. Jeff Gould takes over after on-platform. DUE: 4/1 (overdue)
+2. **Landmark bank reconciliation** — Mary Bamford needs Roper to undo the 2/17/26 reconciliation in QuickBooks (Chart of Accounts > Reconcile > Account 1003 > History by Account > Undo) so she can do full March close. Jeff Gould takes over after on-platform. DUE: 4/1 (overdue)
+3. **Tess licensing + full-time conversation with Brett** — Tess pursuing MA P&C license (NFP reimburses). Have conversation with Brett about bringing her on full time ASAP
+4. **Disable @SignatureAdvisor forwarding** — Stop forwarding to @nfp.com, cleanup
 5. **AI Strategy deep dive + Gaya pilot** — Mark Rieder tentative Mon 4/6 3pm CT with Katherine Minami. Confirm
 6. **Vendor list review for Coupa** — Logan Christianson: review QB vendors, identify which should continue to be paid through Coupa. AP onboarding target 4/21
 7. **Learn Concur** — Concur went live 4/2. Need to figure out how to use it before summit travel 4/13
