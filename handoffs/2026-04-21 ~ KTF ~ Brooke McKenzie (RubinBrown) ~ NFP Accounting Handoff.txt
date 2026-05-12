@@ -1,0 +1,73 @@
+CREATED: 2026-04-21 09:30
+
+KTF: Brooke McKenzie (RubinBrown) -- NFP Accounting Handoff
+=============================================================
+
+PURPOSE
+-------
+Be the accounting interface for Signature Personal Insurance LLC's
+QuickBooks with NFP. Get me out of the loop on month-end and routine
+accounting. Loop me only for business decisions.
+
+I'll tell NFP you're authorized to talk to them directly. Tag your hours
+to a code that makes NFP-driven work visible on my reporting.
+
+
+PRIMARY CONTACT AT NFP
+----------------------
+Mary Bamford -- mary.bamford@nfp.com -- 925.279.4992
+AVP, West Region Accounting, Mergers & Acquisitions.
+Interim accountant for newly acquired NFP firms. Closing Signature's
+month-ends in QuickBooks until we go "on platform" in NFP's system
+(supposed to be April, no firm date). Works with Penny Miller.
+
+After migration, Jeff Gould (jgould@nfp.com) takes over and Mary steps
+out.
+
+
+WHERE THINGS STAND
+------------------
+Two blockers from Mary's perspective:
+
+  1. ADMIN RIGHTS. Mary says she lacks QBO admin rights to do things
+     like undo the Feb reconciliation on Account 1003 Landmark National
+     Bank. Today's plan: you elevate yourself to full admin, then issue
+     Mary an admin user with the same rights as mine.
+
+  2. DRIVE FIREWALL. On 4/14 I shared two Google Drive folders with her:
+
+     * Commission Reports: https://drive.google.com/drive/folders/1XFYh_wE52v41fNEfct8v1LkVH8SiA83K
+     * Deposits: https://drive.google.com/drive/folders/1mA1M3O4bW8k9tvhrxAyMqY2CgkRlQrOT
+
+     NFP's firewall appears to block them. I have an NFP OneDrive I can
+     move files to if that's easier, but my hunch is she doesn't want a
+     data dump -- she wants specific documents (carrier statements,
+     AmEx, bank statements) for month-end.
+
+     ASK: can you look at what I sent her and help me figure out what
+     she actually needs so I can deliver just that? I'll handle the
+     file moves.
+
+
+WHAT I'M NOT ASKING
+-------------------
+  * You don't need to do file transfers or chase documents -- I'll do
+    that.
+  * If Mary needs an expense classified, a business decision made, or
+    anything beyond routine QB tasks, loop me.
+
+
+BOUNDARIES
+----------
+Signature Personal Insurance LLC is owned and operated by me per the
+NFP purchase agreement. QBO stays with the LLC. You can stay involved
+as long as I need you.
+
+
+CONTACT
+-------
+Me: roper@signatureadvisor.com -- 913.210.9054 (cell, text for urgent)
+
+Thanks Brooke.
+
+Roper

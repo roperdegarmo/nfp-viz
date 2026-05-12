@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFP Sender Breakdown — Signature Personal Insurance</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0f0f1a;
+    color: #e8e8f0;
+    min-height: 100vh;
+  }
+
+  nav {
+    background: #0a0a14;
+    border-bottom: 1px solid #1e3a12;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  nav .logo {
+    font-family: Georgia, 'GeorgiaPro', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #4a8c2a;
+    letter-spacing: 0.02em;
+    margin-right: 40px;
+    white-space: nowrap;
+  }
+  nav .logo span { color: #6ab648; }
+  nav a {
+    color: #6b6b80;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 16px 16px;
+    transition: color 0.2s, border-color 0.2s;
+    border-bottom: 2px solid transparent;
+    letter-spacing: 0.03em;
+  }
+  nav a:hover { color: #a0a0b8; }
+  nav a.active { color: #6ab648; border-bottom-color: #4a8c2a; }
+
+  .container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .page-header h1 {
+    font-family: Georgia, 'GeorgiaPro', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  .page-header .subtitle {
+    font-size: 0.95rem;
+    color: #6b6b80;
+  }
+  .page-header .subtitle strong { color: #6ab648; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #141425 0%, #0f0f1a 100%);
+    border: 1px solid #1a1a30;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .stat-card:hover { border-color: #2a4a1a; }
+  .stat-card .value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #6ab648;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-card .value.accent { color: #e85d45; }
+  .stat-card .value.blue { color: #4a90d9; }
+  .stat-card .label {
+    font-size: 0.72rem;
+    color: #6b6b80;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  .insight-banner {
+    background: linear-gradient(135deg, #2a1414 0%, #1a0f0f 100%);
+    border: 1px solid #4a2020;
+    border-left: 4px solid #e85d45;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 40px;
+  }
+  .insight-banner h2 {
+    font-family: Georgia, 'GeorgiaPro', serif;
+    font-size: 1.1rem;
+    color: #e85d45;
+    margin-bottom: 10px;
+  }
+  .insight-banner p {
+    font-size: 0.9rem;
+    color: #c0a0a0;
+    line-height: 1.7;
+  }
+  .insight-banner p strong { color: #e0c0c0; }
+
+  .chart-panel {
+    background: linear-gradient(135deg, #141425 0%, #0f0f1a 100%);
+    border: 1px solid #1a1a30;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 32px;
+  }
+  .chart-panel h2 {
+    font-family: Georgia, 'GeorgiaPro', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #c0c0d0;
+    margin-bottom: 24px;
+  }
+  .chart-panel h2 span { color: #6ab648; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  /* Sender table */
+  .sender-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .sender-table th {
+    text-align: left;
+    padding: 12px 14px;
+    background: #0a0a14;
+    color: #6b6b80;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid #1a1a30;
+  }
+  .sender-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #141425;
+    vertical-align: middle;
+  }
+  .sender-table tr:hover td { background: rgba(106, 182, 72, 0.04); }
+  .sender-table .rank { color: #4a4a60; font-weight: 700; width: 40px; text-align: center; }
+  .sender-table .name { color: #e8e8f0; font-weight: 600; }
+  .sender-table .category-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .sender-table .count { font-weight: 800; text-align: center; }
+  .sender-table .words { color: #6b6b80; text-align: right; font-size: 0.85rem; }
+
+  /* Category colors */
+  .cat-integration { background: #1a2a40; color: #4a90d9; }
+  .cat-operations { background: #2a2010; color: #d4a020; }
+  .cat-regional { background: #1a3010; color: #6ab648; }
+  .cat-corporate { background: #2a1030; color: #b070d0; }
+  .cat-strategic { background: #301020; color: #d06080; }
+
+  /* Volume bar in table */
+  .vol-bar {
+    width: 120px;
+    height: 8px;
+    background: #0a0a14;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  .vol-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  /* Category breakdown */
+  .cat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .cat-label {
+    width: 140px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #a0a0b8;
+    flex-shrink: 0;
+  }
+  .cat-bar-track {
+    flex: 1;
+    height: 28px;
+    background: #0a0a14;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+  }
+  .cat-bar-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    transition: width 0.8s ease;
+    min-width: 30px;
+  }
+  .cat-count {
+    margin-left: 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #6b6b80;
+    width: 80px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .chart-wrap { height: 350px; position: relative; }
+
+  .source-note {
+    font-size: 0.72rem;
+    color: #3a3a50;
+    margin-top: 32px;
+    text-align: center;
+  }
+
+  @media (max-width: 1024px) {
+    .two-col { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    .container { padding: 20px; }
+    nav { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">NFP <span>Integration Dashboard</span></div>
+  <a href="index.html">Heat Map</a>
+  <a href="roadmap.html">Roadmap</a>
+  <a href="senders.html" class="active">Senders</a>
+  <a href="capacity.html">Capacity</a>
+</nav>
+
+<div class="container">
+
+  <div class="page-header">
+    <h1>Sender Breakdown</h1>
+    <p class="subtitle">Who is generating the email volume from <strong>@nfp.com</strong></p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="value">31</div>
+      <div class="label">Unique Senders</div>
+    </div>
+    <div class="stat-card">
+      <div class="value accent">61</div>
+      <div class="label">Top Sender (Mediate)</div>
+    </div>
+    <div class="stat-card">
+      <div class="value blue">41%</div>
+      <div class="label">Top 3 = % of All Email</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">24</div>
+      <div class="label">Senders in Final Week</div>
+    </div>
+  </div>
+
+  <div class="insight-banner">
+    <h2>The Sender Imbalance</h2>
+    <p>
+      <strong>3 people generate 51% of all NFP email volume:</strong> Ryan Mediate (M&A Integration), Mary Mullen (Central Region), and Brett Woodward (Strategic).
+      Meanwhile, <strong>14 senders sent only 1 email each</strong> ... but all 14 of those single emails arrived in the final week before close.
+      This is not a steady stream. It is a firehose that opened on February 17 and has not stopped.
+      The bottom 20 senders represent operational, HR, compliance, and technology requests that each require individual attention and response.
+    </p>
+  </div>
+
+  <div class="two-col">
+    <!-- Sender Category Chart -->
+    <div class="chart-panel">
+      <h2>Emails by <span>Category</span></h2>
+      <div id="catBreakdown"></div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="chart-panel">
+      <h2>Volume <span>Distribution</span></h2>
+      <div class="chart-wrap">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Full Sender Table -->
+  <div class="chart-panel">
+    <h2>All Senders <span>Ranked by Volume</span></h2>
+    <table class="sender-table" id="senderTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th style="text-align:center">Emails</th>
+          <th>Volume</th>
+          <th style="text-align:right">Words</th>
+          <th>Active Period</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Timeline by sender -->
+  <div class="chart-panel">
+    <h2>Top 10 Senders <span>Over Time</span></h2>
+    <div class="chart-wrap" style="height:400px">
+      <canvas id="stackedChart"></canvas>
+    </div>
+  </div>
+
+  <p class="source-note">Source: Supabase email archive. Inbound from @nfp.com, Jul 2025 through Feb 2026. Generated April 2026.</p>
+
+</div>
+
+<script>
+// ============================================================
+// SENDER DATA — from Supabase queries
+// ============================================================
+const SENDERS = [
+  {name:"Ryan Mediate",email:"Ryan.Mediate@nfp.com",count:61,words:49724,first:"2025-08-20",last:"2026-02-20",category:"M&A Integration",catClass:"cat-integration"},
+  {name:"Mary Mullen",email:"mary.mullen@nfp.com",count:46,words:26605,first:"2025-12-08",last:"2026-02-20",category:"Regional Leadership",catClass:"cat-regional"},
+  {name:"Brett Woodward",email:"brett.woodward@nfp.com",count:25,words:13711,first:"2025-07-18",last:"2026-02-20",category:"Strategic",catClass:"cat-strategic"},
+  {name:"William Wolff",email:"william.wolff@nfp.com",count:15,words:6395,first:"2025-11-05",last:"2026-02-17",category:"Operations",catClass:"cat-operations"},
+  {name:"Julie Lovall",email:"julie.lovall@nfp.com",count:14,words:10146,first:"2026-01-23",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Stephanie Goldman",email:"stephanie.goldman@nfp.com",count:13,words:5170,first:"2025-12-10",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Kim Pillar",email:"kim.pillar@nfp.com",count:11,words:9089,first:"2026-02-05",last:"2026-02-11",category:"M&A Integration",catClass:"cat-integration"},
+  {name:"Jacqueline Searles",email:"jsearles@nfp.com",count:11,words:4333,first:"2026-02-04",last:"2026-02-22",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Devin Maloney",email:"devin.maloney@nfp.com",count:8,words:8798,first:"2025-11-14",last:"2025-12-24",category:"Strategic",catClass:"cat-strategic"},
+  {name:"Amy Ciasulli",email:"amy.ciasulli@nfp.com",count:6,words:3073,first:"2026-01-06",last:"2026-02-13",category:"M&A Integration",catClass:"cat-integration"},
+  {name:"Cassandra Stutz",email:"cassandra.stutz@nfp.com",count:6,words:8212,first:"2025-12-26",last:"2026-02-18",category:"Operations",catClass:"cat-operations"},
+  {name:"Keara Connelly",email:"keara.connelly@nfp.com",count:6,words:2159,first:"2026-02-13",last:"2026-02-20",category:"M&A Integration",catClass:"cat-integration"},
+  {name:"Marco Altamirano",email:"marco.altamirano@nfp.com",count:4,words:1665,first:"2026-02-11",last:"2026-02-19",category:"Operations",catClass:"cat-operations"},
+  {name:"Brandon Jackson",email:"brandon.jackson@nfp.com",count:4,words:1218,first:"2025-11-11",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Elizabeth Kalenik",email:"elizabeth.kalenik@nfp.com",count:4,words:2286,first:"2026-02-12",last:"2026-02-17",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Christopher Sam",email:"christopher.sam@nfp.com",count:3,words:3159,first:"2025-11-14",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Tracy McClain",email:"tracy.mcclain@nfp.com",count:3,words:1640,first:"2025-11-20",last:"2026-02-18",category:"Operations",catClass:"cat-operations"},
+  {name:"David M. Kim",email:"david.m.kim@nfp.com",count:2,words:717,first:"2025-12-08",last:"2025-12-08",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Jane Harlow",email:"jane.harlow@nfp.com",count:2,words:866,first:"2026-02-18",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Brad Millican",email:"brad.millican@nfp.com",count:2,words:1142,first:"2026-02-09",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"NFP Meetings",email:"nfpmeetings@nfp.com",count:2,words:517,first:"2026-01-21",last:"2026-02-17",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Joe Stiles",email:"joe.stiles@nfp.com",count:1,words:397,first:"2026-02-20",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Jessica Imholt",email:"jessica.imholt@nfp.com",count:1,words:642,first:"2026-02-20",last:"2026-02-20",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Eugene Likhterman",email:"elikhterman@nfp.com",count:1,words:636,first:"2026-02-18",last:"2026-02-18",category:"Operations",catClass:"cat-operations"},
+  {name:"Phil McKenna",email:"phil.mckenna@nfp.com",count:1,words:138,first:"2025-11-14",last:"2025-11-14",category:"Strategic",catClass:"cat-strategic"},
+  {name:"Pilar Rial",email:"prial@nfp.com",count:1,words:122,first:"2025-11-11",last:"2025-11-11",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Bill Babcock",email:"Bill.Babcock@nfp.com",count:1,words:131,first:"2026-02-18",last:"2026-02-18",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Stephanie Brock",email:"stephanie.brock@nfp.com",count:1,words:410,first:"2026-02-20",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Angie Schisler",email:"angie.schisler@nfp.com",count:1,words:393,first:"2026-02-20",last:"2026-02-20",category:"Operations",catClass:"cat-operations"},
+  {name:"Amy Stewart",email:"amy.stewart@nfp.com",count:1,words:105,first:"2025-12-23",last:"2025-12-23",category:"Corporate/HR",catClass:"cat-corporate"},
+  {name:"Brett Wilson",email:"brett.wilson@nfp.com",count:1,words:381,first:"2026-02-20",last:"2026-02-20",category:"Operations",catClass:"cat-operations"}
+];
+
+const WEEKLY_TOP10 = {
+  "Ryan Mediate": {"2025-08-18":2,"2025-09-08":2,"2025-09-22":3,"2025-09-29":2,"2025-10-06":2,"2025-10-13":2,"2025-10-20":4,"2025-11-03":1,"2025-11-10":1,"2025-12-08":1,"2025-12-15":3,"2025-12-29":5,"2026-01-05":5,"2026-01-12":10,"2026-01-19":1,"2026-01-26":2,"2026-02-02":2,"2026-02-09":6,"2026-02-16":7},
+  "Mary Mullen": {"2025-12-08":5,"2025-12-15":1,"2026-01-05":1,"2026-01-12":5,"2026-01-19":4,"2026-01-26":2,"2026-02-02":6,"2026-02-09":8,"2026-02-16":14},
+  "Brett Woodward": {"2025-07-14":1,"2025-07-21":4,"2025-07-28":4,"2025-08-04":2,"2025-08-11":1,"2025-08-25":1,"2025-09-08":2,"2025-09-29":1,"2025-10-20":1,"2026-01-12":2,"2026-02-09":3,"2026-02-16":3},
+  "William Wolff": {"2025-11-03":1,"2025-11-17":2,"2025-12-08":2,"2026-01-05":4,"2026-01-12":1,"2026-01-19":2,"2026-01-26":2,"2026-02-16":1},
+  "Julie Lovall": {"2026-01-19":2,"2026-02-09":6,"2026-02-16":6},
+  "Stephanie Goldman": {"2025-12-08":2,"2025-12-15":4,"2026-01-05":1,"2026-01-12":1,"2026-01-19":1,"2026-02-09":1,"2026-02-16":3},
+  "Kim Pillar": {"2026-02-02":6,"2026-02-09":5},
+  "Jacqueline Searles": {"2026-02-02":5,"2026-02-16":6},
+  "Devin Maloney": {"2025-11-10":1,"2025-11-17":1,"2025-12-01":1,"2025-12-22":5},
+  "Amy Ciasulli": {"2026-01-05":2,"2026-02-09":4}
+};
+
+const TOTAL = 258;
+const maxCount = SENDERS[0].count;
+
+// ============================================================
+// CATEGORY BREAKDOWN
+// ============================================================
+const catTotals = {};
+const catWords = {};
+SENDERS.forEach(s => {
+  catTotals[s.category] = (catTotals[s.category] || 0) + s.count;
+  catWords[s.category] = (catWords[s.category] || 0) + s.words;
+});
+const catSorted = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+const maxCat = catSorted[0][1];
+
+const catColors = {
+  "M&A Integration": "#4a90d9",
+  "Operations": "#d4a020",
+  "Regional Leadership": "#6ab648",
+  "Corporate/HR": "#b070d0",
+  "Strategic": "#d06080"
+};
+
+const catContainer = document.getElementById('catBreakdown');
+let catHTML = '';
+catSorted.forEach(([cat, count]) => {
+  const pct = (count / TOTAL * 100).toFixed(0);
+  const wPct = (count / maxCat * 100).toFixed(0);
+  const color = catColors[cat] || '#6b6b80';
+  catHTML += `<div class="cat-row">
+    <div class="cat-label">${cat}</div>
+    <div class="cat-bar-track">
+      <div class="cat-bar-fill" style="width:${wPct}%;background:${color}">${count}</div>
+    </div>
+    <div class="cat-count">${pct}% of total</div>
+  </div>`;
+});
+catContainer.innerHTML = catHTML;
+
+// ============================================================
+// PIE CHART
+// ============================================================
+const pieCtx = document.getElementById('pieChart').getContext('2d');
+const top5 = SENDERS.slice(0, 5);
+const othersCount = SENDERS.slice(5).reduce((a, s) => a + s.count, 0);
+
+new Chart(pieCtx, {
+  type: 'doughnut',
+  data: {
+    labels: [...top5.map(s => s.name), 'All Others (26)'],
+    datasets: [{
+      data: [...top5.map(s => s.count), othersCount],
+      backgroundColor: ['#e85d45', '#6ab648', '#d06080', '#d4a020', '#4a90d9', '#3a3a50'],
+      borderColor: '#0f0f1a',
+      borderWidth: 3,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#8b8ba0', font: { size: 11, family: 'Open Sans' }, padding: 16, usePointStyle: true }
+      },
+      tooltip: {
+        backgroundColor: '#1a1a30',
+        titleColor: '#e8e8f0',
+        bodyColor: '#a0a0b8',
+        borderColor: '#2a2a40',
+        borderWidth: 1,
+        callbacks: {
+          label: (item) => `${item.label}: ${item.raw} emails (${(item.raw/TOTAL*100).toFixed(1)}%)`
+        }
+      }
+    }
+  }
+});
+
+// ============================================================
+// SENDER TABLE
+// ============================================================
+const tbody = document.querySelector('#senderTable tbody');
+SENDERS.forEach((s, i) => {
+  const barWidth = (s.count / maxCount * 100).toFixed(0);
+  const color = catColors[s.category] || '#6b6b80';
+  const period = s.first === s.last ? s.first : `${s.first} - ${s.last}`;
+  tbody.innerHTML += `<tr>
+    <td class="rank">${i + 1}</td>
+    <td class="name">${s.name}</td>
+    <td><span class="category-tag ${s.catClass}">${s.category}</span></td>
+    <td class="count" style="color:${s.count >= 10 ? '#e85d45' : s.count >= 5 ? '#d4a020' : '#6ab648'}">${s.count}</td>
+    <td><div class="vol-bar"><div class="vol-bar-fill" style="width:${barWidth}%;background:${color}"></div></div></td>
+    <td class="words">${s.words.toLocaleString()}</td>
+    <td style="font-size:0.78rem;color:#6b6b80">${period}</td>
+  </tr>`;
+});
+
+// ============================================================
+// STACKED AREA CHART — Top 10 Over Time
+// ============================================================
+const stackCtx = document.getElementById('stackedChart').getContext('2d');
+const allWeeks = [...new Set(Object.values(WEEKLY_TOP10).flatMap(w => Object.keys(w)))].sort();
+
+const stackColors = ['#e85d45','#6ab648','#d06080','#d4a020','#4a90d9','#b070d0','#40b0a0','#d08040','#8080d0','#60c060'];
+const stackDatasets = Object.entries(WEEKLY_TOP10).map(([name, weeks], i) => ({
+  label: name,
+  data: allWeeks.map(w => weeks[w] || 0),
+  backgroundColor: stackColors[i] + '40',
+  borderColor: stackColors[i],
+  borderWidth: 2,
+  fill: true,
+  tension: 0.3,
+  pointRadius: 0,
+  pointHoverRadius: 5,
+}));
+
+new Chart(stackCtx, {
+  type: 'line',
+  data: {
+    labels: allWeeks,
+    datasets: stackDatasets
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#8b8ba0', font: { size: 10, family: 'Open Sans' }, padding: 12, usePointStyle: true }
+      },
+      tooltip: {
+        backgroundColor: '#1a1a30',
+        titleColor: '#e8e8f0',
+        bodyColor: '#a0a0b8',
+        borderColor: '#2a2a40',
+        borderWidth: 1,
+        callbacks: {
+          title: (items) => {
+            const d = new Date(items[0].label + 'T12:00:00');
+            return 'Week of ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#4a4a60',
+          font: { size: 9 },
+          callback: function(value, index) {
+            const label = this.getLabelForValue(index);
+            const d = new Date(label + 'T12:00:00');
+            return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+          },
+          maxTicksLimit: 12
+        },
+        grid: { color: '#1a1a2a' }
+      },
+      y: {
+        stacked: true,
+        ticks: { color: '#4a4a60', font: { size: 10 } },
+        grid: { color: '#1a1a2a' },
+        title: { display: true, text: 'Emails per week', color: '#5a5a70', font: { size: 11 } }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
